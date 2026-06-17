@@ -126,6 +126,29 @@ function DetailModal({ data, isDark, onClose }) {
           </button>
         </div>
         <div className="px-5 pb-5 max-h-[60vh] overflow-y-auto">
+          {/* Ringkasan per kategori */}
+          {(() => {
+            const byCategory = {}
+            data.expenses.forEach(exp => {
+              const key = exp.categoryId
+              if (!byCategory[key]) byCategory[key] = { name: exp.cat?.name ?? '?', total: 0 }
+              byCategory[key].total += exp.amount
+            })
+            const cats = Object.values(byCategory)
+            return (
+              <div className={`flex flex-wrap gap-2 mb-4 pb-4 border-b ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+                {cats.map((c, i) => (
+                  <div key={i} className={`flex items-center gap-1.5 rounded-full px-3 py-1 ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
+                    <span className={`text-[10px] font-black w-4 h-4 rounded-md flex items-center justify-center shrink-0 ${isDark ? 'bg-violet-900/60 text-violet-400' : 'bg-violet-100 text-violet-600'}`}>
+                      {c.name.charAt(0).toUpperCase()}
+                    </span>
+                    <span className={`text-[11px] font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{c.name}</span>
+                    <span className={`text-[11px] font-bold ${isDark ? 'text-violet-400' : 'text-violet-500'}`}>{formatRupiah(c.total)}</span>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
           <ExpenseRows expenses={data.expenses} isDark={isDark} />
         </div>
       </div>
