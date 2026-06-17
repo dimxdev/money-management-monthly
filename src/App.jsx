@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { BudgetProvider, useBudgetContext } from './context/BudgetContext'
 import { DarkModeProvider } from './context/DarkModeContext'
+import { ToastProvider } from './context/ToastContext'
 import { Sidebar } from './components/layout/Sidebar'
 import { BottomNav } from './components/layout/BottomNav'
 import Dashboard from './pages/Dashboard'
@@ -40,6 +41,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <DarkModeProvider>
+      <ToastProvider>
       <BudgetProvider>
         {/* Sidebar — fixed, hanya muncul di desktop (lg+) */}
         <Sidebar />
@@ -48,6 +50,7 @@ export default function App() {
           <AppRoutes />
         </div>
       </BudgetProvider>
+      </ToastProvider>
       </DarkModeProvider>
     </BrowserRouter>
   )

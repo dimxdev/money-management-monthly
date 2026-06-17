@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
+import { useToast } from '../context/ToastContext'
 
 export function useStorage(key, defaultValue) {
+  const toast = useToast()
+
   const [value, setValue] = useState(() => {
     try {
       const item = localStorage.getItem(key)
@@ -13,8 +16,13 @@ export function useStorage(key, defaultValue) {
   useEffect(() => {
     try {
       localStorage.setItem(key, JSON.stringify(value))
-    } catch {
-      // quota exceeded atau private mode — abaikan
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'QuotaExceededError') {
+        toast?.showToast(
+          'Penyimpanan browser penuh! Data terbaru tidak tersimpan. Hapus data bulan lama atau export & import ulang di halaman Pengaturan.',
+          'error'
+        )
+      }
     }
   }, [key, value])
 

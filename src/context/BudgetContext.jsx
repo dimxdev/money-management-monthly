@@ -145,6 +145,10 @@ export function BudgetProvider({ children }) {
     setData(DEFAULT_DATA)
   }, [setData])
 
+  const deleteMonth = useCallback((monthId) => {
+    setData(prev => ({ months: prev.months.filter(m => m.id !== monthId) }))
+  }, [setData])
+
   return (
     <BudgetContext.Provider value={{
       months: data.months,
@@ -159,6 +163,7 @@ export function BudgetProvider({ children }) {
       exportMonth,
       importData,
       clearAllData,
+      deleteMonth,
     }}>
       {children}
     </BudgetContext.Provider>

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Download, Upload, Trash2, SlidersHorizontal, MessageCircle } from 'lucide-react'
+import { Download, Upload, Trash2, SlidersHorizontal, MessageCircle, CalendarX2 } from 'lucide-react'
 import { useBudgetContext } from '../context/BudgetContext'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
@@ -9,13 +9,14 @@ import { Button } from '../components/ui/Button'
 const selectCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-3 text-sm text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-400'
 
 export default function Settings() {
-  const { months, exportData, exportMonth, importData, clearAllData } = useBudgetContext()
+  const { months, exportData, exportMonth, importData, clearAllData, deleteMonth } = useBudgetContext()
   const navigate = useNavigate()
   const fileRef = useRef(null)
 
   // Bulan tersedia (yang sudah ada datanya), terbaru di atas
   const availableMonths = [...months].sort((a, b) => b.id.localeCompare(a.id))
   const [exportTarget, setExportTarget] = useState('all')
+  const [deleteTarget, setDeleteTarget] = useState('')
 
   function handleExport() {
     if (exportTarget === 'all') exportData()
@@ -51,6 +52,16 @@ export default function Settings() {
     }
     reader.readAsText(file)
     e.target.value = ''
+  }
+
+  function handleDeleteMonth() {
+    if (!deleteTarget) return
+    const month = availableMonths.find(m => m.id === deleteTarget)
+    if (!month) return
+    if (window.confirm(`Hapus data bulan ${month.name}? Tindakan ini tidak bisa dibatalkan.`)) {
+      deleteMonth(deleteTarget)
+      setDeleteTarget('')
+    }
   }
 
   function handleClear() {
@@ -143,6 +154,39 @@ export default function Settings() {
               <MessageCircle size={18} /> Chat via WhatsApp
             </Button>
           </a>
+        </Card>
+
+        <Card className="p-4 flex flex-col gap-3">
+          <h2 className="font-semibold text-slate-800 dark:text-slate-100">Hapus Data Bulan</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Pilih bulan yang ingin dihapus. Data pengeluaran dan kategori bulan tersebut akan hilang permanen.
+          </p>
+          {availableMonths.length === 0 ? (
+            <p className="text-xs text-slate-400 dark:text-slate-500 italic">Belum ada data bulan.</p>
+          ) : (
+            <>
+              <select
+                className={selectCls}
+                value={deleteTarget}
+                onChange={e => setDeleteTarget(e.target.value)}
+              >
+                <option value="">-- Pilih bulan --</option>
+                {availableMonths.map(m => (
+                  <option key={m.id} value={m.id}>
+                    {m.name} — {m.expenses.length} transaksi
+                  </option>
+                ))}
+              </select>
+              <Button
+                variant="danger"
+                onClick={handleDeleteMonth}
+                disabled={!deleteTarget}
+                className="w-full py-3 flex items-center justify-center gap-2"
+              >
+                <CalendarX2 size={18} /> Hapus Bulan Ini
+              </Button>
+            </>
+          )}
         </Card>
 
         <Card className="p-4 flex flex-col gap-3">
