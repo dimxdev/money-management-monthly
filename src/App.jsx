@@ -27,6 +27,7 @@ function AppRoutes() {
         <Route path="/category/:id" element={<ProtectedRoute><CategoryDetail /></ProtectedRoute>} />
         <Route path="/history" element={<History />} />
         <Route path="/history/:monthId" element={<History />} />
+        <Route path="/history/:monthId/category/:id" element={<CategoryDetail />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -7,6 +7,7 @@ import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { formatRupiah } from '../utils/currency'
 import { SAVINGS_ID } from '../utils/savings'
+import { toTitleCase } from '../utils/text'
 
 const NEW = '__new__'
 
@@ -36,7 +37,7 @@ export default function AddIncome() {
 
     if (target === NEW) {
       if (!newCatName.trim()) return setError('Nama kategori baru harus diisi.')
-      addIncome(activeMonth.id, amountNum, { type: 'new', name: newCatName.trim() })
+      addIncome(activeMonth.id, amountNum, { type: 'new', name: toTitleCase(newCatName) })
     } else {
       addIncome(activeMonth.id, amountNum, { type: 'existing', categoryId: target })
     }

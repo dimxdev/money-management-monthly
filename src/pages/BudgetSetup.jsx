@@ -8,6 +8,7 @@ import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { formatRupiah } from '../utils/currency'
 import { SAVINGS_ID, makeSavingsCategory, isSavings } from '../utils/savings'
+import { toTitleCase } from '../utils/text'
 
 const MONTH_NAMES = [
   'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -102,7 +103,7 @@ export default function BudgetSetup() {
 
     const userCategories = categories.map((c, i) => ({
       id: c.id ?? `cat_${Date.now()}_${i}`,
-      name: c.name.trim(),
+      name: toTitleCase(c.name),
       budget: Number(c.budget) || 0,
     }))
 

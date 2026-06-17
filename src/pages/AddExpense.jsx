@@ -1,16 +1,19 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useBudgetContext } from '../context/BudgetContext'
+import { useBudget } from '../hooks/useBudget'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { formatRupiah } from '../utils/currency'
+import { toTitleCase } from '../utils/text'
 
 const labelCls = 'text-sm font-medium text-slate-700 dark:text-slate-300'
 const inputCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-400 dark:placeholder:text-slate-600 dark:focus:bg-slate-700'
 
 export default function AddExpense() {
   const { activeMonth, addExpense } = useBudgetContext()
+  const { categoryStats } = useBudget(activeMonth)
   const navigate = useNavigate()
 
   const [categoryId, setCategoryId] = useState(activeMonth?.categories[0]?.id ?? '')
@@ -18,16 +21,23 @@ export default function AddExpense() {
   const [description, setDescription] = useState('')
   const [error, setError] = useState('')
 
+  const selectedStat = categoryStats.find(c => c.id === categoryId)
+
   function handleSave() {
     setError('')
     if (!categoryId) return setError('Pilih kategori terlebih dahulu.')
     if (!amount || Number(amount) <= 0) return setError('Nominal tidak valid.')
+    if (selectedStat && Number(amount) > selectedStat.remaining) {
+      return setError(
+        `Nominal melebihi sisa budget kategori ini (${formatRupiah(selectedStat.remaining)}).`
+      )
+    }
     if (!description.trim()) return setError('Keterangan tidak boleh kosong.')
 
     addExpense(activeMonth.id, {
       categoryId,
       amount: Number(amount),
-      description: description.trim(),
+      description: toTitleCase(description),
     })
     navigate('/')
   }
@@ -46,6 +56,23 @@ export default function AddExpense() {
               <option key={cat.id} value={cat.id}>{cat.name}</option>
             ))}
           </select>
+          {selectedStat && (
+            <p className="text-sm pl-1">
+              <span className="text-slate-400 dark:text-slate-500">Sisa budget: </span>
+              <span
+                className={`font-semibold ${
+                  selectedStat.remaining <= 0
+                    ? 'text-red-500 dark:text-red-400'
+                    : 'text-emerald-600 dark:text-emerald-400'
+                }`}
+              >
+                {formatRupiah(selectedStat.remaining)}
+              </span>
+              <span className="text-slate-400 dark:text-slate-500">
+                {' '}/ {formatRupiah(selectedStat.budget)}
+              </span>
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -83,7 +110,11 @@ export default function AddExpense() {
           </div>
         )}
 
-        <Button onClick={handleSave} className="w-full py-3 text-base">
+        <Button
+          onClick={handleSave}
+          disabled={!!selectedStat && Number(amount) > selectedStat.remaining}
+          className="w-full py-3 text-base"
+        >
           Simpan
         </Button>
       </Card>

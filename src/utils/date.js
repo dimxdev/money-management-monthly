@@ -3,6 +3,15 @@ const MONTHS = [
   'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
 ]
 
+const DAYS = [
+  'Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu',
+]
+
+export function formatFullDate(isoString = new Date()) {
+  const d = new Date(isoString)
+  return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`
+}
+
 export function formatDate(isoString) {
   const d = new Date(isoString)
   return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`

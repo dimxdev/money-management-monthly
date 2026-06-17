@@ -29,15 +29,22 @@ function getStatus(pct) {
   return STATUS.safe
 }
 
-export function CategoryCard({ stat, readOnly = false }) {
+export function CategoryCard({ stat, readOnly = false, monthId }) {
   const navigate = useNavigate()
   const s = getStatus(stat.percentage)
   const savings = isSavings(stat)
 
+  const linkTo = monthId
+    ? `/history/${monthId}/category/${stat.id}`
+    : readOnly
+    ? null
+    : `/category/${stat.id}`
+  const clickable = !!linkTo
+
   return (
     <Card
-      className={`p-4 ${!readOnly ? 'cursor-pointer hover:shadow-[0_4px_20px_-2px_rgba(109,40,217,0.12)] dark:hover:shadow-[0_4px_20px_-2px_rgba(109,40,217,0.2)] transition-shadow duration-200' : ''}`}
-      onClick={readOnly ? undefined : () => navigate(`/category/${stat.id}`)}
+      className={`p-4 ${clickable ? 'cursor-pointer hover:shadow-[0_4px_20px_-2px_rgba(109,40,217,0.12)] dark:hover:shadow-[0_4px_20px_-2px_rgba(109,40,217,0.2)] transition-shadow duration-200' : ''}`}
+      onClick={clickable ? () => navigate(linkTo) : undefined}
     >
       <div className="flex items-center gap-3 mb-3">
         <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${savings ? 'bg-violet-100 dark:bg-violet-900/40' : s.bg}`}>
@@ -61,7 +68,7 @@ export function CategoryCard({ stat, readOnly = false }) {
           <span className={`text-xs font-black px-2 py-0.5 rounded-full ring-1 ${s.badge}`}>
             {stat.percentage}%
           </span>
-          {!readOnly && <ChevronRight size={15} className="text-slate-300 dark:text-slate-600" />}
+          {clickable && <ChevronRight size={15} className="text-slate-300 dark:text-slate-600" />}
         </div>
       </div>
 

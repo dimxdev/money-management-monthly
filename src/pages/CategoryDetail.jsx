@@ -9,14 +9,19 @@ import { Button } from '../components/ui/Button'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { formatRupiah } from '../utils/currency'
 import { formatDateTime } from '../utils/date'
+import { toTitleCase } from '../utils/text'
 
 const editInputCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-400 dark:placeholder:text-slate-600'
 
 export default function CategoryDetail() {
-  const { id } = useParams()
+  const { id, monthId } = useParams()
   const navigate = useNavigate()
-  const { activeMonth, editExpense, deleteExpense } = useBudgetContext()
-  const { categoryStats } = useBudget(activeMonth)
+  const { activeMonth, months, editExpense, deleteExpense } = useBudgetContext()
+
+  // Mode riwayat: lihat kategori bulan lama (read-only, tanpa edit/hapus)
+  const readOnly = !!monthId
+  const month = monthId ? months.find(m => m.id === monthId) : activeMonth
+  const { categoryStats } = useBudget(month)
 
   const [editingId, setEditingId] = useState(null)
   const [editAmount, setEditAmount] = useState('')
@@ -25,11 +30,11 @@ export default function CategoryDetail() {
   const stat = categoryStats.find(c => c.id === id)
 
   if (!stat) {
-    navigate('/')
+    navigate(readOnly ? `/history/${monthId}` : '/')
     return null
   }
 
-  const expenses = (activeMonth?.expenses ?? [])
+  const expenses = (month?.expenses ?? [])
     .filter(e => e.categoryId === id)
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 
@@ -43,7 +48,7 @@ export default function CategoryDetail() {
     if (!editAmount || Number(editAmount) <= 0) return
     editExpense(activeMonth.id, editingId, {
       amount: Number(editAmount),
-      description: editDesc,
+      description: toTitleCase(editDesc),
     })
     setEditingId(null)
   }
@@ -121,22 +126,24 @@ export default function CategoryDetail() {
                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{formatDateTime(exp.createdAt)}</p>
                     <p className="font-semibold text-violet-600 dark:text-violet-400 mt-1">{formatRupiah(exp.amount)}</p>
                   </div>
-                  <div className="flex gap-1 ml-2 shrink-0">
-                    <button
-                      onClick={() => startEdit(exp)}
-                      className="text-slate-300 dark:text-slate-600 hover:text-violet-500 dark:hover:text-violet-400 transition-colors p-1.5"
-                      aria-label="Edit"
-                    >
-                      <Pencil size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(exp.id)}
-                      className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1.5"
-                      aria-label="Hapus"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
+                  {!readOnly && (
+                    <div className="flex gap-1 ml-2 shrink-0">
+                      <button
+                        onClick={() => startEdit(exp)}
+                        className="text-slate-300 dark:text-slate-600 hover:text-violet-500 dark:hover:text-violet-400 transition-colors p-1.5"
+                        aria-label="Edit"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(exp.id)}
+                        className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1.5"
+                        aria-label="Hapus"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </Card>

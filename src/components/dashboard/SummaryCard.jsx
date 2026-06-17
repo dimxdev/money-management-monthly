@@ -1,6 +1,7 @@
 import { SlidersHorizontal } from 'lucide-react'
 import { ThemeToggle } from '../ui/ThemeToggle'
 import { formatRupiah } from '../../utils/currency'
+import { formatFullDate } from '../../utils/date'
 
 export function SummaryCard({ month, totalSpent, remaining, onEdit }) {
   const spentPct = month.income > 0 ? Math.min(Math.round((totalSpent / month.income) * 100), 100) : 0
@@ -20,6 +21,9 @@ export function SummaryCard({ month, totalSpent, remaining, onEdit }) {
               Bulan Aktif
             </p>
             <p className="text-sm font-bold text-white/90 mt-0.5">{month.name}</p>
+            <p className="text-[11px] font-medium text-white/60 mt-0.5 capitalize">
+              {formatFullDate()}
+            </p>
           </div>
           <div className="flex items-center gap-1">
             {/* Toggle tema — hanya muncul di mobile, desktop pakai sidebar */}

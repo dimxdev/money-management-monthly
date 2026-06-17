@@ -6,6 +6,7 @@ import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
 import { SummaryCard } from '../components/dashboard/SummaryCard'
 import { CategoryCard } from '../components/dashboard/CategoryCard'
+import { SpendingChart } from '../components/dashboard/SpendingChart'
 import { formatRupiah } from '../utils/currency'
 
 function HistoryList() {
@@ -57,8 +58,9 @@ function HistoryDetail({ month }) {
     <PageWrapper title={month.name}>
       <div className="flex flex-col gap-4">
         <SummaryCard month={month} totalSpent={totalSpent} remaining={remaining} />
+        <SpendingChart month={month} />
         {categoryStats.map(stat => (
-          <CategoryCard key={stat.id} stat={stat} readOnly />
+          <CategoryCard key={stat.id} stat={stat} monthId={month.id} />
         ))}
       </div>
     </PageWrapper>
