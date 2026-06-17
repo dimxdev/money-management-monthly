@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Download, Upload, Trash2, SlidersHorizontal } from 'lucide-react'
+import { Download, Upload, Trash2, SlidersHorizontal, MessageCircle } from 'lucide-react'
 import { useBudgetContext } from '../context/BudgetContext'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
@@ -123,6 +123,26 @@ export default function Settings() {
             className="hidden"
             onChange={handleImport}
           />
+        </Card>
+
+        <Card className="p-4 flex flex-col gap-3">
+          <h2 className="font-semibold text-slate-800 dark:text-slate-100">Bantuan & Masukan</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Menemukan bug atau punya saran fitur? Jangan ragu untuk menghubungi lewat WhatsApp.
+          </p>
+          <a
+            href="https://wa.me/6281212834013"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full"
+          >
+            <Button
+              variant="primary"
+              className="w-full py-3 flex items-center justify-center gap-2"
+            >
+              <MessageCircle size={18} /> Chat via WhatsApp
+            </Button>
+          </a>
         </Card>
 
         <Card className="p-4 flex flex-col gap-3">
