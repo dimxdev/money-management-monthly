@@ -1,16 +1,28 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { BudgetProvider, useBudgetContext } from './context/BudgetContext'
 import { DarkModeProvider } from './context/DarkModeContext'
 import { ToastProvider } from './context/ToastContext'
 import { Sidebar } from './components/layout/Sidebar'
 import { BottomNav } from './components/layout/BottomNav'
-import Dashboard from './pages/Dashboard'
-import BudgetSetup from './pages/BudgetSetup'
-import AddExpense from './pages/AddExpense'
-import AddIncome from './pages/AddIncome'
-import CategoryDetail from './pages/CategoryDetail'
-import History from './pages/History'
-import Settings from './pages/Settings'
+
+// Lazy load tiap halaman → tiap route jadi chunk terpisah,
+// user hanya download halaman yang dibuka (hemat kuota).
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const BudgetSetup = lazy(() => import('./pages/BudgetSetup'))
+const AddExpense = lazy(() => import('./pages/AddExpense'))
+const AddIncome = lazy(() => import('./pages/AddIncome'))
+const CategoryDetail = lazy(() => import('./pages/CategoryDetail'))
+const History = lazy(() => import('./pages/History'))
+const Settings = lazy(() => import('./pages/Settings'))
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="h-8 w-8 rounded-full border-2 border-slate-200 border-t-violet-500 animate-spin" />
+    </div>
+  )
+}
 
 function ProtectedRoute({ children }) {
   const { activeMonth } = useBudgetContext()
@@ -20,18 +32,20 @@ function ProtectedRoute({ children }) {
 function AppRoutes() {
   return (
     <>
-      <Routes>
-        <Route path="/setup" element={<BudgetSetup />} />
-        <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/add" element={<ProtectedRoute><AddExpense /></ProtectedRoute>} />
-        <Route path="/income" element={<ProtectedRoute><AddIncome /></ProtectedRoute>} />
-        <Route path="/category/:id" element={<ProtectedRoute><CategoryDetail /></ProtectedRoute>} />
-        <Route path="/history" element={<History />} />
-        <Route path="/history/:monthId" element={<History />} />
-        <Route path="/history/:monthId/category/:id" element={<CategoryDetail />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/setup" element={<BudgetSetup />} />
+          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/add" element={<ProtectedRoute><AddExpense /></ProtectedRoute>} />
+          <Route path="/income" element={<ProtectedRoute><AddIncome /></ProtectedRoute>} />
+          <Route path="/category/:id" element={<ProtectedRoute><CategoryDetail /></ProtectedRoute>} />
+          <Route path="/history" element={<History />} />
+          <Route path="/history/:monthId" element={<History />} />
+          <Route path="/history/:monthId/category/:id" element={<CategoryDetail />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
       <BottomNav />
     </>
   )

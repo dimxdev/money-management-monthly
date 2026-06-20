@@ -1,10 +1,11 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Download, Upload, Trash2, SlidersHorizontal, MessageCircle, CalendarX2 } from 'lucide-react'
+import { Download, Upload, Trash2, SlidersHorizontal, MessageCircle, CalendarX2, Heart } from 'lucide-react'
 import { useBudgetContext } from '../context/BudgetContext'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
+import qrisImg from '../assets/qris.png'
 
 const selectCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-3 text-sm text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-400'
 
@@ -187,6 +188,31 @@ export default function Settings() {
               </Button>
             </>
           )}
+        </Card>
+
+        <Card className="p-4 flex flex-col gap-3">
+          <h2 className="font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+            <Heart size={18} className="text-violet-500" /> Dukung Developer
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Aplikasi ini gratis dan tanpa iklan. Kalau terbantu, kamu bisa traktir kopi lewat QRIS di bawah ini.
+            Dukungan sekecil apa pun sangat berarti untuk pengembangan selanjutnya. Terima kasih! 🙏
+          </p>
+          <div className="flex justify-center">
+            <img
+              src={qrisImg}
+              alt="QRIS dukungan developer"
+              className="w-full max-w-xs rounded-2xl border border-slate-200 dark:border-slate-600"
+            />
+          </div>
+          <a href={qrisImg} download="qris-dukung-developer.png" className="w-full">
+            <Button
+              variant="secondary"
+              className="w-full py-3 flex items-center justify-center gap-2"
+            >
+              <Download size={18} /> Download QR
+            </Button>
+          </a>
         </Card>
 
         <Card className="p-4 flex flex-col gap-3">
