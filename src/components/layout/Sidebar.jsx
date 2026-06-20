@@ -1,10 +1,12 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, PlusCircle, History, Settings, Wallet } from 'lucide-react'
+import { LayoutDashboard, PlusCircle, History, Settings, Wallet, HandCoins, PieChart } from 'lucide-react'
 import { ThemeToggle } from '../ui/ThemeToggle'
 
 const NAV_ITEMS = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard', end: true },
   { to: '/add', icon: PlusCircle, label: 'Catat Pengeluaran', primary: true },
+  { to: '/analytics', icon: PieChart, label: 'Analitik' },
+  { to: '/notes', icon: HandCoins, label: 'Hutang / Catatan' },
   { to: '/history', icon: History, label: 'Riwayat' },
   { to: '/settings', icon: Settings, label: 'Pengaturan' },
 ]

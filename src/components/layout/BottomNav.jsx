@@ -1,9 +1,10 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, PlusCircle, History, Settings } from 'lucide-react'
+import { LayoutDashboard, History, Settings, HandCoins, PieChart } from 'lucide-react'
 
 const NAV_ITEMS = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard', end: true },
-  { to: '/add', icon: PlusCircle, label: 'Catat', primary: true },
+  { to: '/analytics', icon: PieChart, label: 'Analitik' },
+  { to: '/notes', icon: HandCoins, label: 'Hutang' },
   { to: '/history', icon: History, label: 'History' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ]

@@ -1,16 +1,19 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Download, Upload, Trash2, SlidersHorizontal, MessageCircle, CalendarX2, Heart } from 'lucide-react'
+import { Download, Upload, Trash2, SlidersHorizontal, MessageCircle, CalendarX2, Heart, FileSpreadsheet, FileText, Loader2 } from 'lucide-react'
 import { useBudgetContext } from '../context/BudgetContext'
+import { useToast } from '../context/ToastContext'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
+import { exportMonthCSV, exportMonthPDF } from '../utils/export'
 import qrisImg from '../assets/qris.png'
 
 const selectCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-3 text-sm text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-400'
 
 export default function Settings() {
   const { months, exportData, exportMonth, importData, clearAllData, deleteMonth } = useBudgetContext()
+  const toast = useToast()
   const navigate = useNavigate()
   const fileRef = useRef(null)
 
@@ -18,6 +21,28 @@ export default function Settings() {
   const availableMonths = [...months].sort((a, b) => b.id.localeCompare(a.id))
   const [exportTarget, setExportTarget] = useState('all')
   const [deleteTarget, setDeleteTarget] = useState('')
+
+  // Export laporan (CSV/PDF) — default bulan terbaru
+  const [reportTarget, setReportTarget] = useState(availableMonths[0]?.id ?? '')
+  const [pdfLoading, setPdfLoading] = useState(false)
+
+  const reportMonth = availableMonths.find(m => m.id === reportTarget) ?? null
+
+  function handleExportCSV() {
+    if (reportMonth) exportMonthCSV(reportMonth)
+  }
+
+  async function handleExportPDF() {
+    if (!reportMonth) return
+    setPdfLoading(true)
+    try {
+      await exportMonthPDF(reportMonth)
+    } catch {
+      toast?.showToast('Gagal membuat PDF. Coba lagi.', 'error')
+    } finally {
+      setPdfLoading(false)
+    }
+  }
 
   function handleExport() {
     if (exportTarget === 'all') exportData()
@@ -135,6 +160,56 @@ export default function Settings() {
             className="hidden"
             onChange={handleImport}
           />
+        </Card>
+
+        <Card className="p-4 flex flex-col gap-3">
+          <h2 className="font-semibold text-slate-800 dark:text-slate-100">Export Laporan</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Buat laporan keuangan bulanan yang rapi — CSV untuk diolah di Excel, atau PDF untuk dibaca & dibagikan.
+          </p>
+
+          {availableMonths.length === 0 ? (
+            <p className="text-xs text-slate-400 dark:text-slate-500 italic">Belum ada data bulan.</p>
+          ) : (
+            <>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Pilih bulan</label>
+                <select
+                  className={selectCls}
+                  value={reportTarget}
+                  onChange={e => setReportTarget(e.target.value)}
+                >
+                  {availableMonths.map(m => (
+                    <option key={m.id} value={m.id}>
+                      {m.name} — {m.expenses.length} transaksi
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={handleExportCSV}
+                  className="w-full py-3 flex items-center justify-center gap-2"
+                >
+                  <FileSpreadsheet size={18} /> CSV
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleExportPDF}
+                  disabled={pdfLoading}
+                  className="w-full py-3 flex items-center justify-center gap-2"
+                >
+                  {pdfLoading ? (
+                    <><Loader2 size={18} className="animate-spin" /> Membuat…</>
+                  ) : (
+                    <><FileText size={18} /> PDF</>
+                  )}
+                </Button>
+              </div>
+            </>
+          )}
         </Card>
 
         <Card className="p-4 flex flex-col gap-3">
