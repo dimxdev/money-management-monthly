@@ -16,3 +16,17 @@ body {
 .dark body {
   background-color: #0C0A1A;
 }
+
+/* Hilangkan kotak outline putih saat elemen chart diklik/fokus (semua chart) */
+.recharts-wrapper:focus,
+.recharts-wrapper :focus,
+.recharts-surface:focus,
+.recharts-sector:focus,
+.recharts-rectangle:focus,
+.recharts-bar-rectangle:focus,
+.recharts-layer:focus,
+g[tabindex]:focus,
+path[tabindex]:focus,
+.recharts-wrapper :focus-visible {
+  outline: none;
+}

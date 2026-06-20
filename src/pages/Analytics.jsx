@@ -222,7 +222,10 @@ export default function Analytics() {
                       <Cell key={i} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip content={<PieTooltip income={income} isDark={isDark} />} />
+                  <Tooltip
+                    content={<PieTooltip income={income} isDark={isDark} />}
+                    wrapperStyle={{ pointerEvents: 'none', zIndex: 30 }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
