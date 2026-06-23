@@ -9,6 +9,8 @@ import { Input } from '../components/ui/Input'
 import { formatRupiah } from '../utils/currency'
 import { SAVINGS_ID, makeSavingsCategory, isSavings } from '../utils/savings'
 import { toTitleCase } from '../utils/text'
+import { evalAmount } from '../utils/math'
+import { AmountInput } from '../components/ui/AmountInput'
 
 const MONTH_NAMES = [
   'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -78,10 +80,10 @@ export default function BudgetSetup() {
     setError('')
   }, [monthId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const incomeNum   = Number(income) || 0
-  const totalBudget = categories.reduce((sum, c) => sum + (Number(c.budget) || 0), 0)
-  // Sisa yang otomatis masuk ke Tabungan
-  const savingsBudget = Math.max(0, incomeNum - totalBudget)
+  const incomeNum   = evalAmount(income) || 0
+  const totalBudget = categories.reduce((sum, c) => sum + (evalAmount(c.budget) || 0), 0)
+  const carryOver   = !isEditing && prevRemaining > 0 ? prevRemaining : 0
+  const savingsBudget = Math.max(0, incomeNum - totalBudget) + carryOver
 
   function addCategory() {
     setCategories(prev => [...prev, { name: '', budget: '' }])
@@ -104,7 +106,7 @@ export default function BudgetSetup() {
     const userCategories = categories.map((c, i) => ({
       id: c.id ?? `cat_${Date.now()}_${i}`,
       name: toTitleCase(c.name),
-      budget: Number(c.budget) || 0,
+      budget: evalAmount(c.budget) || 0,
     }))
 
     // Tabungan selalu ada & otomatis menampung sisa, ditaruh paling akhir.
@@ -178,30 +180,24 @@ export default function BudgetSetup() {
         </Card>
 
         {/* Info sisa saldo bulan lalu — hanya saat membuat bulan baru & ada bulan sebelumnya */}
-        {prevMonth && !isEditing && (
+        {prevMonth && !isEditing && prevRemaining > 0 && (
           <div className="flex items-center gap-3 rounded-2xl border border-emerald-200/70 dark:border-emerald-800/50 bg-emerald-50/80 dark:bg-emerald-950/30 px-4 py-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/40">
               <Wallet size={18} className="text-emerald-600 dark:text-emerald-400" />
             </div>
             <p className="text-sm text-emerald-800 dark:text-emerald-300 leading-snug">
-              Sisa saldo kamu bulan lalu ({prevMonth.name}) adalah{' '}
+              Sisa saldo bulan lalu ({prevMonth.name}) sebesar{' '}
               <span className="font-bold">{formatRupiah(prevRemaining)}</span>
+              {' '}otomatis ditambahkan ke <span className="font-bold">Tabungan</span>.
             </p>
           </div>
         )}
 
         <Card className="p-4 flex flex-col gap-2">
-          <Input
-            label="Total Pemasukan"
-            type="number"
-            inputMode="numeric"
-            value={income}
-            onChange={e => setIncome(e.target.value)}
-            placeholder="5000000"
-          />
-          {incomeNum > 0 && (
-            <p className="text-sm text-violet-500 dark:text-violet-400 font-medium">{formatRupiah(incomeNum)}</p>
-          )}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Pemasukan</label>
+            <AmountInput value={income} onChange={setIncome} placeholder="5000000" />
+          </div>
         </Card>
 
         <div className="flex items-center justify-between">
@@ -223,19 +219,13 @@ export default function BudgetSetup() {
                   value={cat.name}
                   onChange={e => updateCategory(i, 'name', e.target.value)}
                 />
-                <div className="flex flex-col gap-0.5">
-                  <input
-                    className={inlineCls}
-                    placeholder="Budget (angka)"
-                    type="number"
-                    inputMode="numeric"
-                    value={cat.budget}
-                    onChange={e => updateCategory(i, 'budget', e.target.value)}
-                  />
-                  {Number(cat.budget) > 0 && (
-                    <p className="text-xs text-violet-400 dark:text-violet-500 pl-1">{formatRupiah(Number(cat.budget))}</p>
-                  )}
-                </div>
+                <AmountInput
+                  value={cat.budget}
+                  onChange={v => updateCategory(i, 'budget', v)}
+                  placeholder="Budget (angka)"
+                  inputClassName={`${inlineCls} tracking-wide`}
+                  previewColor="violet"
+                />
               </div>
               <button
                 onClick={() => removeCategory(i)}

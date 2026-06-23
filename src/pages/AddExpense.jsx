@@ -7,6 +7,8 @@ import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { formatRupiah } from '../utils/currency'
 import { toTitleCase } from '../utils/text'
+import { evalAmount } from '../utils/math'
+import { AmountInput } from '../components/ui/AmountInput'
 
 const labelCls = 'text-sm font-medium text-slate-700 dark:text-slate-300'
 const inputCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-400 dark:placeholder:text-slate-600 dark:focus:bg-slate-700'
@@ -23,11 +25,13 @@ export default function AddExpense() {
 
   const selectedStat = categoryStats.find(c => c.id === categoryId)
 
+  const evaluated = evalAmount(amount)
+
   function handleSave() {
     setError('')
     if (!categoryId) return setError('Pilih kategori terlebih dahulu.')
-    if (!amount || Number(amount) <= 0) return setError('Nominal tidak valid.')
-    if (selectedStat && Number(amount) > selectedStat.remaining) {
+    if (isNaN(evaluated) || evaluated <= 0) return setError('Nominal tidak valid.')
+    if (selectedStat && evaluated > selectedStat.remaining) {
       return setError(
         `Nominal melebihi sisa budget kategori ini (${formatRupiah(selectedStat.remaining)}).`
       )
@@ -36,7 +40,7 @@ export default function AddExpense() {
 
     addExpense(activeMonth.id, {
       categoryId,
-      amount: Number(amount),
+      amount: evaluated,
       description: toTitleCase(description),
     })
     navigate('/')
@@ -77,19 +81,7 @@ export default function AddExpense() {
 
         <div className="flex flex-col gap-1">
           <label className={labelCls}>Nominal</label>
-          <input
-            className={`${inputCls} text-xl font-semibold`}
-            type="number"
-            inputMode="numeric"
-            placeholder="0"
-            value={amount}
-            onChange={e => setAmount(e.target.value)}
-          />
-          {amount && Number(amount) > 0 && (
-            <p className="text-sm text-violet-500 dark:text-violet-400 font-medium pl-1">
-              {formatRupiah(Number(amount))}
-            </p>
-          )}
+          <AmountInput value={amount} onChange={setAmount} />
         </div>
 
         <div className="flex flex-col gap-1">
@@ -112,7 +104,7 @@ export default function AddExpense() {
 
         <Button
           onClick={handleSave}
-          disabled={!!selectedStat && Number(amount) > selectedStat.remaining}
+          disabled={!!selectedStat && evaluated > selectedStat.remaining}
           className="w-full py-3 text-base"
         >
           Simpan

@@ -7,6 +7,8 @@ import { Button } from '../components/ui/Button'
 import { formatRupiah } from '../utils/currency'
 import { formatDate } from '../utils/date'
 import { toTitleCase } from '../utils/text'
+import { evalAmount } from '../utils/math'
+import { AmountInput } from '../components/ui/AmountInput'
 
 const STORAGE_KEY = 'money-tracker-notes'
 const inputCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-400 dark:placeholder:text-slate-600 dark:focus:bg-slate-700'
@@ -48,9 +50,10 @@ export default function Notes() {
   function handleSave() {
     setError('')
     if (!title.trim()) return setError('Judul / keterangan tidak boleh kosong.')
-    if (!amount || Number(amount) <= 0) return setError('Nominal tidak valid.')
+    const evaluated = evalAmount(amount)
+    if (isNaN(evaluated) || evaluated <= 0) return setError('Nominal tidak valid.')
 
-    const payload = { title: toTitleCase(title), amount: Number(amount), debtType: debtType ?? null }
+    const payload = { title: toTitleCase(title), amount: evaluated, debtType: debtType ?? null }
 
     if (editingId) {
       setNotes(prev => prev.map(n => (n.id === editingId ? { ...n, ...payload } : n)))
@@ -217,20 +220,11 @@ export default function Notes() {
 
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nominal</label>
-                <input
-                  className={`${inputCls} text-xl font-semibold`}
-                  type="number"
-                  inputMode="numeric"
-                  placeholder="0"
+                <AmountInput
                   value={amount}
-                  onChange={e => setAmount(e.target.value)}
+                  onChange={setAmount}
                   onKeyDown={e => e.key === 'Enter' && handleSave()}
                 />
-                {amount && Number(amount) > 0 && (
-                  <p className="text-sm text-violet-500 dark:text-violet-400 font-medium pl-1">
-                    {formatRupiah(Number(amount))}
-                  </p>
-                )}
               </div>
 
               {error && (

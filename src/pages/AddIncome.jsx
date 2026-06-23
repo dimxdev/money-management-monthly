@@ -8,6 +8,8 @@ import { Button } from '../components/ui/Button'
 import { formatRupiah } from '../utils/currency'
 import { SAVINGS_ID } from '../utils/savings'
 import { toTitleCase } from '../utils/text'
+import { evalAmount } from '../utils/math'
+import { AmountInput } from '../components/ui/AmountInput'
 
 const NEW = '__new__'
 
@@ -28,7 +30,7 @@ export default function AddIncome() {
   const [newCatName, setNewCatName] = useState('')
   const [error, setError] = useState('')
 
-  const amountNum = Number(amount) || 0
+  const amountNum = evalAmount(amount) || 0
   const targetCat = categories.find(c => c.id === target)
 
   function handleSave() {
@@ -49,19 +51,7 @@ export default function AddIncome() {
       <Card className="p-4 flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <label className={labelCls}>Nominal Pemasukan</label>
-          <input
-            className={`${inputCls} text-xl font-semibold`}
-            type="number"
-            inputMode="numeric"
-            placeholder="0"
-            value={amount}
-            onChange={e => setAmount(e.target.value)}
-          />
-          {amountNum > 0 && (
-            <p className="text-sm text-emerald-500 dark:text-emerald-400 font-medium pl-1">
-              + {formatRupiah(amountNum)}
-            </p>
-          )}
+          <AmountInput value={amount} onChange={setAmount} previewColor="emerald" previewPrefix="+ " />
         </div>
 
         <div className="flex flex-col gap-1">
