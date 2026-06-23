@@ -18,6 +18,7 @@ export default function Notes() {
   const [editingId, setEditingId] = useState(null)
   const [title, setTitle] = useState('')
   const [amount, setAmount] = useState('')
+  const [debtType, setDebtType] = useState(null)
   const [error, setError] = useState('')
 
   const sorted = [...notes].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -26,6 +27,7 @@ export default function Notes() {
     setEditingId(null)
     setTitle('')
     setAmount('')
+    setDebtType(null)
     setError('')
     setModalOpen(true)
   }
@@ -34,6 +36,7 @@ export default function Notes() {
     setEditingId(note.id)
     setTitle(note.title)
     setAmount(note.amount.toString())
+    setDebtType(note.debtType ?? null)
     setError('')
     setModalOpen(true)
   }
@@ -47,7 +50,7 @@ export default function Notes() {
     if (!title.trim()) return setError('Judul / keterangan tidak boleh kosong.')
     if (!amount || Number(amount) <= 0) return setError('Nominal tidak valid.')
 
-    const payload = { title: toTitleCase(title), amount: Number(amount) }
+    const payload = { title: toTitleCase(title), amount: Number(amount), debtType: debtType ?? null }
 
     if (editingId) {
       setNotes(prev => prev.map(n => (n.id === editingId ? { ...n, ...payload } : n)))
@@ -101,7 +104,19 @@ export default function Notes() {
               <Card key={note.id} className="p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-800 dark:text-slate-100 break-words">{note.title}</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium text-slate-800 dark:text-slate-100 break-words">{note.title}</p>
+                      {note.debtType === 'lending' && (
+                        <span className="shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                          Meminjamkan
+                        </span>
+                      )}
+                      {note.debtType === 'borrowing' && (
+                        <span className="shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
+                          Meminjam
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{formatDate(note.createdAt)}</p>
                     <p className="font-semibold text-violet-600 dark:text-violet-400 mt-1">{formatRupiah(note.amount)}</p>
                   </div>
@@ -156,6 +171,36 @@ export default function Notes() {
                 >
                   <X size={20} />
                 </button>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Jenis <span className="text-slate-400 dark:text-slate-500 font-normal">(opsional)</span>
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setDebtType(prev => prev === 'lending' ? null : 'lending')}
+                    className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-colors ${
+                      debtType === 'lending'
+                        ? 'bg-green-500 border-green-500 text-white'
+                        : 'border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-green-400 dark:hover:border-green-600 hover:text-green-600 dark:hover:text-green-400'
+                    }`}
+                  >
+                    Meminjamkan
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDebtType(prev => prev === 'borrowing' ? null : 'borrowing')}
+                    className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-colors ${
+                      debtType === 'borrowing'
+                        ? 'bg-red-500 border-red-500 text-white'
+                        : 'border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:border-red-400 dark:hover:border-red-600 hover:text-red-600 dark:hover:text-red-400'
+                    }`}
+                  >
+                    Meminjam
+                  </button>
+                </div>
               </div>
 
               <div className="flex flex-col gap-1">
