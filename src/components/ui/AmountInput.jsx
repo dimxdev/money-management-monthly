@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { evalAmount } from '../../utils/math'
 import { formatRupiah } from '../../utils/currency'
 
@@ -13,14 +14,16 @@ export function AmountInput({
   onKeyDown,
   autoFocus,
 }) {
+  const inputRef = useRef(null)
   const ev = evalAmount(value)
-  const hasOp = /[+\-]/.test(String(value).slice(1))
+  const hasOp = /[+\-*/]/.test(String(value).slice(1))
 
   function appendOp(op) {
     const v = String(value).trimEnd()
     if (!v) return
     if (/[+\-*/]$/.test(v)) onChange(v.slice(0, -1).trimEnd() + ` ${op} `)
     else onChange(v + ` ${op} `)
+    inputRef.current?.focus()
   }
 
   const previewCls = previewColor === 'emerald'
@@ -30,6 +33,7 @@ export function AmountInput({
   return (
     <div className="flex flex-col gap-1.5">
       <input
+        ref={inputRef}
         className={inputClassName ?? defaultInputCls}
         type="text"
         inputMode="numeric"
@@ -49,6 +53,7 @@ export function AmountInput({
           <button
             key={op}
             type="button"
+            onPointerDown={e => e.preventDefault()}
             onClick={() => appendOp(op)}
             className={`py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 text-sm font-bold text-slate-500 dark:text-slate-400 active:scale-95 transition-all ${hover}`}
           >
