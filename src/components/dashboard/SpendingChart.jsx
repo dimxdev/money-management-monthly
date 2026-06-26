@@ -168,10 +168,10 @@ export function SpendingChart({ month }) {
 
   const gridColor   = isDark ? '#1e293b' : '#f1f5f9'
   const tickColor   = isDark ? '#475569' : '#94a3b8'
-  const cursorColor = isDark ? '#1e1b3a' : '#f5f3ff'
+  const cursorColor = isDark ? '#102a3a' : '#ecfeff'
   const emptyColor  = isDark ? '#1e293b' : '#e2e8f0'
-  const barColor    = isDark ? '#7c3aed' : '#a78bfa'
-  const todayColor  = '#6d28d9'
+  const barColor    = isDark ? '#22d3ee' : '#67e8f9'
+  const todayColor  = '#2563eb'
 
   return (
     <Card className="p-4 lg:p-5">
