@@ -26,6 +26,7 @@ export default function AddIncome() {
     categories.find(c => c.id === SAVINGS_ID)?.id ?? categories[0]?.id ?? NEW
 
   const [amount, setAmount] = useState('')
+  const [source, setSource] = useState('')
   const [target, setTarget] = useState(defaultTarget)
   const [newCatName, setNewCatName] = useState('')
   const [error, setError] = useState('')
@@ -37,11 +38,12 @@ export default function AddIncome() {
     setError('')
     if (!amountNum || amountNum <= 0) return setError('Nominal pemasukan tidak valid.')
 
+    const desc = toTitleCase(source)
     if (target === NEW) {
       if (!newCatName.trim()) return setError('Nama kategori baru harus diisi.')
-      addIncome(activeMonth.id, amountNum, { type: 'new', name: toTitleCase(newCatName) })
+      addIncome(activeMonth.id, amountNum, { type: 'new', name: toTitleCase(newCatName) }, desc)
     } else {
-      addIncome(activeMonth.id, amountNum, { type: 'existing', categoryId: target })
+      addIncome(activeMonth.id, amountNum, { type: 'existing', categoryId: target }, desc)
     }
     navigate('/')
   }
@@ -52,6 +54,18 @@ export default function AddIncome() {
         <div className="flex flex-col gap-1">
           <label className={labelCls}>Nominal Pemasukan</label>
           <AmountInput value={amount} onChange={setAmount} previewColor="emerald" previewPrefix="+ " />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className={labelCls}>Sumber <span className="font-normal text-slate-400 dark:text-slate-500">(opsional)</span></label>
+          <input
+            className={inputCls}
+            type="text"
+            placeholder="Contoh: Gaji, Bonus, THR"
+            value={source}
+            onChange={e => setSource(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSave()}
+          />
         </div>
 
         <div className="flex flex-col gap-1">

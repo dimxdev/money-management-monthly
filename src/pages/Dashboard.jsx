@@ -81,6 +81,7 @@ export default function Dashboard() {
           totalSpent={totalSpent}
           remaining={remaining}
           onEdit={() => navigate('/setup')}
+          onIncomeClick={() => navigate('/income-history')}
         />
 
         {/* Aksi cepat */}

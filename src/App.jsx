@@ -12,6 +12,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard'))
 const BudgetSetup = lazy(() => import('./pages/BudgetSetup'))
 const AddExpense = lazy(() => import('./pages/AddExpense'))
 const AddIncome = lazy(() => import('./pages/AddIncome'))
+const IncomeHistory = lazy(() => import('./pages/IncomeHistory'))
 const CategoryDetail = lazy(() => import('./pages/CategoryDetail'))
 const History = lazy(() => import('./pages/History'))
 const Notes = lazy(() => import('./pages/Notes'))
@@ -40,6 +41,7 @@ function AppRoutes() {
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/add" element={<ProtectedRoute><AddExpense /></ProtectedRoute>} />
           <Route path="/income" element={<ProtectedRoute><AddIncome /></ProtectedRoute>} />
+          <Route path="/income-history" element={<ProtectedRoute><IncomeHistory /></ProtectedRoute>} />
           <Route path="/category/:id" element={<ProtectedRoute><CategoryDetail /></ProtectedRoute>} />
           <Route path="/history" element={<History />} />
           <Route path="/history/:monthId" element={<History />} />

@@ -3,7 +3,7 @@ import { ThemeToggle } from '../ui/ThemeToggle'
 import { formatRupiah } from '../../utils/currency'
 import { formatFullDate } from '../../utils/date'
 
-export function SummaryCard({ month, totalSpent, remaining, onEdit }) {
+export function SummaryCard({ month, totalSpent, remaining, onEdit, onIncomeClick }) {
   const spentPct = month.income > 0 ? Math.min(Math.round((totalSpent / month.income) * 100), 100) : 0
 
   return (
@@ -64,12 +64,16 @@ export function SummaryCard({ month, totalSpent, remaining, onEdit }) {
 
         {/* Stats row */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-2xl bg-white/10 px-4 py-3 backdrop-blur-sm">
+          <button
+            type="button"
+            onClick={onIncomeClick}
+            className="rounded-2xl bg-white/10 px-4 py-3 backdrop-blur-sm text-left transition-colors hover:bg-white/20 active:scale-[0.98]"
+          >
             <p className="text-[10px] font-semibold uppercase tracking-wider text-white/50 mb-1">
-              Pemasukan
+              Pemasukan ›
             </p>
             <p className="text-sm font-bold text-white">{formatRupiah(month.income)}</p>
-          </div>
+          </button>
           <div className="rounded-2xl bg-white/10 px-4 py-3 backdrop-blur-sm">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-white/50 mb-1">
               Pengeluaran

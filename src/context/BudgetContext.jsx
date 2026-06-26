@@ -23,6 +23,7 @@ export function BudgetProvider({ children }) {
         id: c.id ?? `cat_${Date.now()}_${i}`,
       })),
       expenses: [],
+      incomes: [],
     }
     setData(prev => ({
       months: [...prev.months.filter(m => m.id !== id), newMonth],
@@ -37,12 +38,21 @@ export function BudgetProvider({ children }) {
 
   // Tambah pemasukan & alokasikan ke kategori (existing atau buat baru).
   // income += amount; budget kategori target += amount (invariant income == total budget tetap terjaga).
+  // Tiap pemasukan dicatat ke array `incomes` agar punya riwayat.
   // target: { type: 'existing', categoryId } | { type: 'new', name }
-  const addIncome = useCallback((monthId, amount, target) => {
+  const addIncome = useCallback((monthId, amount, target, description = '') => {
     setData(prev => ({
       months: prev.months.map(m => {
         if (m.id !== monthId) return m
         const income = m.income + amount
+
+        const record = {
+          id: `inc_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+          amount,
+          description: description.trim(),
+          createdAt: new Date().toISOString(),
+        }
+        const incomes = [...(m.incomes ?? []), record]
 
         if (target.type === 'new') {
           const newCat = {
@@ -50,6 +60,7 @@ export function BudgetProvider({ children }) {
             name: target.name.trim(),
             budget: amount,
           }
+          record.categoryId = newCat.id
           // Sisipkan sebelum kategori Tabungan agar Tabungan tetap paling akhir
           const savingsIdx = m.categories.findIndex(isSavings)
           const categories = savingsIdx === -1
@@ -59,13 +70,14 @@ export function BudgetProvider({ children }) {
                 newCat,
                 ...m.categories.slice(savingsIdx),
               ]
-          return { ...m, income, categories }
+          return { ...m, income, categories, incomes }
         }
 
+        record.categoryId = target.categoryId
         const categories = m.categories.map(c =>
           c.id === target.categoryId ? { ...c, budget: c.budget + amount } : c
         )
-        return { ...m, income, categories }
+        return { ...m, income, categories, incomes }
       }),
     }))
   }, [setData])
