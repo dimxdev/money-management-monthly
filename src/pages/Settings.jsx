@@ -9,7 +9,7 @@ import { Button } from '../components/ui/Button'
 import { exportMonthCSV, exportMonthPDF } from '../utils/export'
 import qrisImg from '../assets/qris.png'
 
-const selectCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-3 text-sm text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-400'
+const selectCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-3 text-sm text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-400'
 
 export default function Settings() {
   const { months, exportData, exportMonth, importData, clearAllData, deleteMonth } = useBudgetContext()
@@ -267,7 +267,7 @@ export default function Settings() {
 
         <Card className="p-4 flex flex-col gap-3">
           <h2 className="font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-            <Heart size={18} className="text-violet-500" /> Dukung Developer
+            <Heart size={18} className="text-cyan-500" /> Dukung Developer
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Aplikasi ini gratis dan tanpa iklan. Kalau terbantu, kamu bisa traktir kopi lewat QRIS di bawah ini.

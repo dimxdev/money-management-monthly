@@ -81,15 +81,15 @@ export async function exportMonthPDF(month) {
   const pageH = doc.internal.pageSize.getHeight()
   const M = 40
 
-  const VIOLET = [139, 92, 246]
+  const ACCENT  = [100, 223, 223] // Aqua Aurora — table head
   const SLATE_DARK = [51, 65, 85]
   const SLATE_MUTED = [148, 163, 184]
 
   // ── Header band ──
-  doc.setFillColor(...VIOLET)
+  doc.setFillColor(11, 16, 38)   // Deep Space
   doc.rect(0, 0, pageW, 96, 'F')
 
-  doc.setTextColor(237, 233, 254)
+  doc.setTextColor(100, 223, 223) // Aqua
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(9)
   doc.setCharSpace(2)
@@ -114,7 +114,7 @@ export async function exportMonthPDF(month) {
   const boxH = 60
   const boxes = [
     { label: 'PEMASUKAN', value: month.income, fill: [239, 246, 255], color: [37, 99, 235] },
-    { label: 'TOTAL PENGELUARAN', value: totalSpent, fill: [245, 243, 255], color: [124, 58, 237] },
+    { label: 'TOTAL PENGELUARAN', value: totalSpent, fill: [224, 251, 252], color: [8, 145, 178] },
     {
       label: 'SISA SALDO',
       value: remaining,
@@ -159,7 +159,7 @@ export async function exportMonthPDF(month) {
       `${c.percentage}%`,
     ]),
     styles: { fontSize: 9, cellPadding: 6, lineColor: [226, 232, 240], lineWidth: 0.5, textColor: SLATE_DARK },
-    headStyles: { fillColor: VIOLET, textColor: 255, fontStyle: 'bold' },
+    headStyles: { fillColor: ACCENT, textColor: [11, 16, 38], fontStyle: 'bold' },
     alternateRowStyles: { fillColor: [248, 250, 252] },
     columnStyles: {
       1: { halign: 'right' },
@@ -187,7 +187,7 @@ export async function exportMonthPDF(month) {
         ])
       : [['—', '—', 'Belum ada transaksi', '—']],
     styles: { fontSize: 9, cellPadding: 6, lineColor: [226, 232, 240], lineWidth: 0.5, textColor: SLATE_DARK },
-    headStyles: { fillColor: VIOLET, textColor: 255, fontStyle: 'bold' },
+    headStyles: { fillColor: ACCENT, textColor: [11, 16, 38], fontStyle: 'bold' },
     alternateRowStyles: { fillColor: [248, 250, 252] },
     columnStyles: {
       0: { cellWidth: 120 },

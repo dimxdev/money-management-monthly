@@ -12,14 +12,14 @@ const STATUS = {
     badge: 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 ring-red-200 dark:ring-red-800/50',
   },
   warning: {
-    text: 'text-amber-600 dark:text-amber-400',
-    bg: 'bg-amber-100 dark:bg-amber-900/30',
-    badge: 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 ring-amber-200 dark:ring-amber-800/50',
+    text: 'text-blue-600 dark:text-blue-400',
+    bg: 'bg-blue-100 dark:bg-blue-900/30',
+    badge: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 ring-blue-200 dark:ring-blue-800/50',
   },
   safe: {
-    text: 'text-emerald-600 dark:text-emerald-400',
-    bg: 'bg-emerald-100 dark:bg-emerald-900/30',
-    badge: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 ring-emerald-200 dark:ring-emerald-800/50',
+    text: 'text-cyan-600 dark:text-cyan-400',
+    bg: 'bg-cyan-100 dark:bg-cyan-900/30',
+    badge: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 ring-cyan-200 dark:ring-cyan-800/50',
   },
 }
 
@@ -43,13 +43,13 @@ export function CategoryCard({ stat, readOnly = false, monthId }) {
 
   return (
     <Card
-      className={`p-4 ${clickable ? 'cursor-pointer hover:shadow-[0_4px_20px_-2px_rgba(109,40,217,0.12)] dark:hover:shadow-[0_4px_20px_-2px_rgba(109,40,217,0.2)] transition-shadow duration-200' : ''}`}
+      className={`p-4 ${clickable ? 'cursor-pointer hover:shadow-[0_4px_20px_-2px_rgba(100,223,223,0.15)] dark:hover:shadow-[0_4px_20px_-2px_rgba(100,223,223,0.2)] transition-shadow duration-200' : ''}`}
       onClick={clickable ? () => navigate(linkTo) : undefined}
     >
       <div className="flex items-center gap-3 mb-3">
-        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${savings ? 'bg-violet-100 dark:bg-violet-900/40' : s.bg}`}>
+        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${savings ? 'bg-cyan-100 dark:bg-cyan-900/40' : s.bg}`}>
           {savings ? (
-            <PiggyBank size={18} className="text-violet-600 dark:text-violet-400" />
+            <PiggyBank size={18} className="text-cyan-600 dark:text-cyan-400" />
           ) : (
             <span className={`text-sm font-black ${s.text}`}>
               {stat.name.charAt(0).toUpperCase()}
