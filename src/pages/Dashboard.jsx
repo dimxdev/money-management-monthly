@@ -94,7 +94,7 @@ export default function Dashboard() {
           </button>
           <button
             onClick={() => navigate('/income')}
-            className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-semibold py-3 shadow-md shadow-emerald-200 dark:shadow-emerald-900/50 active:scale-[0.98] transition-transform"
+            className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-600 dark:to-[#1B2A6B] text-white font-semibold py-3 shadow-md shadow-blue-200 dark:shadow-blue-900/50 active:scale-[0.98] transition-transform"
           >
             <Wallet size={18} /> Tambah Pemasukan
           </button>

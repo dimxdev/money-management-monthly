@@ -20,8 +20,8 @@ import { buildTrend, monthStats, buildWeekdayData } from '../utils/analytics'
 
 // Palet warna kategori (selaras dengan tema app)
 const PALETTE = [
-  '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444',
-  '#06b6d4', '#ec4899', '#6366f1', '#14b8a6', '#f97316',
+  '#22d3ee', '#3b82f6', '#10b981', '#f59e0b', '#ef4444',
+  '#06b6d4', '#ec4899', '#0e7490', '#14b8a6', '#f97316',
 ]
 
 function formatShort(val) {
@@ -187,9 +187,9 @@ export default function Analytics() {
 
   const gridColor = isDark ? '#1e293b' : '#f1f5f9'
   const tickColor = isDark ? '#475569' : '#94a3b8'
-  const cursorColor = isDark ? '#1e1b3a' : '#f5f3ff'
+  const cursorColor = isDark ? '#102a3a' : '#ecfeff'
   const budgetColor = isDark ? '#334155' : '#cbd5e1'
-  const spentColor = isDark ? '#7c3aed' : '#a78bfa'
+  const spentColor = isDark ? '#22d3ee' : '#0891b2'
 
   // Belum ada bulan sama sekali
   if (!selectedMonth) {
@@ -491,7 +491,7 @@ export default function Analytics() {
                     <Cell
                       key={i}
                       fill={entry.isWeekend
-                        ? (isDark ? '#6d28d9' : '#8b5cf6')
+                        ? (isDark ? '#3b82f6' : '#2563eb')
                         : spentColor}
                     />
                   ))}
@@ -503,7 +503,7 @@ export default function Analytics() {
                 <span className="inline-block w-2.5 h-2.5 rounded-[3px]" style={{ background: spentColor }} /> Hari kerja
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="inline-block w-2.5 h-2.5 rounded-[3px]" style={{ background: isDark ? '#6d28d9' : '#8b5cf6' }} /> Akhir pekan
+                <span className="inline-block w-2.5 h-2.5 rounded-[3px]" style={{ background: isDark ? '#3b82f6' : '#2563eb' }} /> Akhir pekan
               </span>
             </div>
           </Card>

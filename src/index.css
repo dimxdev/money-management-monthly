@@ -7,14 +7,102 @@
   box-sizing: border-box;
 }
 
+/* ── Palet "Midnight Aurora" (dipakai oleh tailwind.config.js via CSS variable) ──
+   Skala `slate` (netral) & `violet` (accent) diarahkan ke variabel ini.
+   Tiap shade punya nilai berbeda di light vs dark, jadi kontras tetap aman
+   (tombol teal solid kebaca, teks aksen bisa Aqua terang).
+   Format: "R G B" (triplet, tanpa koma) untuk rgb(... / <alpha>).
+
+   Sumber palet:
+     Deep Space  #0B1026   Cosmic Blue #1B2A6B   Indigo  #5E60CE
+     Aqua Aurora #64DFDF   Ice         #E0FBFC                    */
+
+:root {
+  /* slate -> netral dingin ber-tint ice (mode light) */
+  --slate-50: 240 251 253;
+  --slate-100: 226 244 248;
+  --slate-200: 205 226 234;
+  --slate-300: 180 203 215;
+  --slate-400: 130 150 168;
+  --slate-500: 90 110 130;
+  --slate-600: 60 78 96;
+  --slate-700: 42 58 76;
+  --slate-800: 26 40 58;
+  --slate-900: 11 22 40;     /* teks utama — nuansa Deep Space */
+  --slate-950: 6 14 28;
+  /* violet (accent) -> teal/cyan gelap (kebaca di latar terang) */
+  --violet-50: 236 254 255;
+  --violet-100: 207 250 254;
+  --violet-200: 165 243 252;
+  --violet-300: 103 232 249;
+  --violet-400: 34 211 238;
+  --violet-500: 6 182 212;    /* tombol utama */
+  --violet-600: 8 145 178;    /* teks aksen / hover */
+  --violet-700: 14 116 144;
+  --violet-800: 21 94 117;
+  --violet-900: 22 78 99;
+  --violet-950: 8 51 68;
+  /* indigo (partner gradient) -> biru menuju "Cosmic Blue" #1B2A6B */
+  --indigo-50: 239 246 255;
+  --indigo-100: 219 234 254;
+  --indigo-200: 191 219 254;
+  --indigo-300: 147 197 253;
+  --indigo-400: 96 165 250;
+  --indigo-500: 59 130 246;
+  --indigo-600: 37 99 235;
+  --indigo-700: 29 78 216;
+  --indigo-800: 30 58 138;
+  --indigo-900: 27 42 107;   /* Cosmic Blue */
+  --indigo-950: 17 26 70;
+  /* purple (partner gradient) -> teal/cyan (sama keluarga dgn accent) */
+  --purple-50: 236 254 255;
+  --purple-100: 207 250 254;
+  --purple-200: 165 243 252;
+  --purple-300: 103 232 249;
+  --purple-400: 34 211 238;
+  --purple-500: 6 182 212;
+  --purple-600: 8 145 178;
+  --purple-700: 14 116 144;
+  --purple-800: 21 94 117;
+  --purple-900: 22 78 99;
+  --purple-950: 8 51 68;
+}
+
+.dark {
+  /* slate -> ramp navy "Deep Space / Cosmic Blue" dengan teks "Ice" */
+  --slate-50: 240 251 255;
+  --slate-100: 224 251 252;  /* Ice — teks utama */
+  --slate-200: 209 224 240;
+  --slate-300: 180 196 226;
+  --slate-400: 138 154 200;
+  --slate-500: 110 126 178;
+  --slate-600: 50 66 130;
+  --slate-700: 33 47 110;    /* Cosmic Blue — border/surface terangkat */
+  --slate-800: 20 28 70;
+  --slate-900: 11 16 38;     /* Deep Space — card/surface */
+  --slate-950: 7 10 26;
+  /* violet (accent) -> Aqua untuk teks, teal solid untuk tombol */
+  --violet-50: 236 254 255;
+  --violet-100: 207 250 254;
+  --violet-200: 165 243 252;
+  --violet-300: 103 232 249;
+  --violet-400: 100 223 223;  /* Aqua #64DFDF — teks aksen / highlight */
+  --violet-500: 8 145 178;    /* tombol utama (teks putih tetap kebaca) */
+  --violet-600: 14 116 144;
+  --violet-700: 21 94 117;
+  --violet-800: 22 78 99;
+  --violet-900: 12 58 70;
+  --violet-950: 8 40 50;
+}
+
 body {
-  background-color: #F0EEFF;
+  background-color: #EAF7FA;  /* ice tint */
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 .dark body {
-  background-color: #0C0A1A;
+  background-color: #0B1026;  /* Deep Space */
 }
 
 /* Hilangkan kotak outline putih saat elemen chart diklik/fokus (semua chart) */
