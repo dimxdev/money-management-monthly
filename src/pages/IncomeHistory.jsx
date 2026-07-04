@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Wallet, ArrowDownLeft } from 'lucide-react'
 import { useBudgetContext } from '../context/BudgetContext'
 import { PageWrapper } from '../components/layout/PageWrapper'
@@ -7,20 +7,30 @@ import { formatRupiah } from '../utils/currency'
 import { formatDateTime } from '../utils/date'
 
 export default function IncomeHistory() {
+  const { monthId } = useParams()
   const navigate = useNavigate()
-  const { activeMonth } = useBudgetContext()
+  const { activeMonth, months } = useBudgetContext()
+
+  // Mode riwayat: lihat pemasukan bulan lama (read-only)
+  const readOnly = !!monthId
+  const month = monthId ? months.find(m => m.id === monthId) : activeMonth
+
+  if (!month) {
+    navigate('/history')
+    return null
+  }
 
   const catMap = Object.fromEntries(
-    (activeMonth?.categories ?? []).map(c => [c.id, c])
+    (month?.categories ?? []).map(c => [c.id, c])
   )
 
-  const incomes = [...(activeMonth?.incomes ?? [])]
+  const incomes = [...(month?.incomes ?? [])]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 
   const total = incomes.reduce((sum, inc) => sum + inc.amount, 0)
 
   return (
-    <PageWrapper title="Riwayat Pemasukan">
+    <PageWrapper title={readOnly ? `Pemasukan · ${month.name}` : 'Riwayat Pemasukan'}>
       <div className="flex flex-col gap-4">
         <Card className="p-4 flex items-center justify-between">
           <div>
@@ -42,12 +52,14 @@ export default function IncomeHistory() {
             <p className="text-sm font-medium text-slate-400 dark:text-slate-500">
               Belum ada pemasukan tercatat
             </p>
-            <button
-              onClick={() => navigate('/income')}
-              className="mt-1 text-sm font-semibold text-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
-            >
-              Tambah pemasukan →
-            </button>
+            {!readOnly && (
+              <button
+                onClick={() => navigate('/income')}
+                className="mt-1 text-sm font-semibold text-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
+              >
+                Tambah pemasukan →
+              </button>
+            )}
           </div>
         ) : (
           <div className="flex flex-col gap-2">

@@ -86,7 +86,7 @@ export function BudgetProvider({ children }) {
     const newExpense = {
       ...expense,
       id: `exp_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      createdAt: new Date().toISOString(),
+      createdAt: expense.createdAt || new Date().toISOString(),
     }
     setData(prev => ({
       months: prev.months.map(m =>

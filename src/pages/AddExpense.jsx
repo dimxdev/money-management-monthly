@@ -21,6 +21,7 @@ export default function AddExpense() {
   const [categoryId, setCategoryId] = useState(activeMonth?.categories[0]?.id ?? '')
   const [amount, setAmount] = useState('')
   const [description, setDescription] = useState('')
+  const [datetime, setDatetime] = useState('')
   const [error, setError] = useState('')
 
   const selectedStat = categoryStats.find(c => c.id === categoryId)
@@ -38,10 +39,18 @@ export default function AddExpense() {
     }
     if (!description.trim()) return setError('Keterangan tidak boleh kosong.')
 
+    let createdAt
+    if (datetime) {
+      const d = new Date(datetime)
+      if (isNaN(d.getTime())) return setError('Tanggal & waktu tidak valid.')
+      createdAt = d.toISOString()
+    }
+
     addExpense(activeMonth.id, {
       categoryId,
       amount: evaluated,
       description: toTitleCase(description),
+      ...(createdAt && { createdAt }),
     })
     navigate('/')
   }
@@ -82,6 +91,19 @@ export default function AddExpense() {
         <div className="flex flex-col gap-1">
           <label className={labelCls}>Nominal</label>
           <AmountInput value={amount} onChange={setAmount} />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className={labelCls}>Tanggal & Waktu</label>
+          <input
+            className={inputCls}
+            type="datetime-local"
+            value={datetime}
+            onChange={e => setDatetime(e.target.value)}
+          />
+          <p className="text-xs text-slate-400 dark:text-slate-500 pl-1">
+            Kosongkan untuk pakai tanggal & waktu sekarang.
+          </p>
         </div>
 
         <div className="flex flex-col gap-1">

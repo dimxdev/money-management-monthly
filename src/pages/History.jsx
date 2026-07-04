@@ -52,12 +52,18 @@ function HistoryList() {
 }
 
 function HistoryDetail({ month }) {
+  const navigate = useNavigate()
   const { totalSpent, remaining, categoryStats } = useBudget(month)
 
   return (
     <PageWrapper title={month.name}>
       <div className="flex flex-col gap-4">
-        <SummaryCard month={month} totalSpent={totalSpent} remaining={remaining} />
+        <SummaryCard
+          month={month}
+          totalSpent={totalSpent}
+          remaining={remaining}
+          onIncomeClick={() => navigate(`/history/${month.id}/income`)}
+        />
         <SpendingChart month={month} />
         {categoryStats.map(stat => (
           <CategoryCard key={stat.id} stat={stat} monthId={month.id} />

@@ -46,6 +46,7 @@ function AppRoutes() {
           <Route path="/history" element={<History />} />
           <Route path="/history/:monthId" element={<History />} />
           <Route path="/history/:monthId/category/:id" element={<CategoryDetail />} />
+          <Route path="/history/:monthId/income" element={<IncomeHistory />} />
           <Route path="/notes" element={<Notes />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/settings" element={<Settings />} />
