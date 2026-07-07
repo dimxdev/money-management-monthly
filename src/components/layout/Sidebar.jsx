@@ -3,7 +3,7 @@ import { LayoutDashboard, PlusCircle, History, Settings, Wallet, HandCoins, PieC
 import { ThemeToggle } from '../ui/ThemeToggle'
 
 const NAV_ITEMS = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard', end: true },
+  { to: '/', icon: LayoutDashboard, label: 'Beranda', end: true },
   { to: '/add', icon: PlusCircle, label: 'Catat Pengeluaran', primary: true },
   { to: '/analytics', icon: PieChart, label: 'Analitik' },
   { to: '/notes', icon: HandCoins, label: 'Hutang / Catatan' },
@@ -56,7 +56,7 @@ export function Sidebar() {
       <div className="px-4 py-4 border-t border-violet-50 dark:border-slate-700/50 flex items-center justify-between gap-2">
         <div className="leading-tight">
           <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">Data tersimpan di browser</p>
-          <p className="text-[11px] text-slate-300 dark:text-slate-600 mt-0.5">Settings → Export untuk backup</p>
+          <p className="text-[11px] text-slate-300 dark:text-slate-600 mt-0.5">Pengaturan → Export untuk backup</p>
         </div>
         <ThemeToggle />
       </div>

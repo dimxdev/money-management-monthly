@@ -2,14 +2,18 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Pencil, Trash2, Check, X } from 'lucide-react'
 import { useBudgetContext } from '../context/BudgetContext'
+import { useToast } from '../context/ToastContext'
 import { useBudget } from '../hooks/useBudget'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { ProgressBar } from '../components/ui/ProgressBar'
+import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { formatRupiah } from '../utils/currency'
 import { formatDateTime } from '../utils/date'
 import { toTitleCase } from '../utils/text'
+import { evalAmount } from '../utils/math'
+import { AmountInput } from '../components/ui/AmountInput'
 
 const editInputCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-400 dark:placeholder:text-slate-600'
 
@@ -17,6 +21,7 @@ export default function CategoryDetail() {
   const { id, monthId } = useParams()
   const navigate = useNavigate()
   const { activeMonth, months, editExpense, deleteExpense } = useBudgetContext()
+  const toast = useToast()
 
   // Mode riwayat: lihat kategori bulan lama (read-only, tanpa edit/hapus)
   const readOnly = !!monthId
@@ -26,6 +31,8 @@ export default function CategoryDetail() {
   const [editingId, setEditingId] = useState(null)
   const [editAmount, setEditAmount] = useState('')
   const [editDesc, setEditDesc] = useState('')
+  const [editError, setEditError] = useState('')
+  const [deleteId, setDeleteId] = useState(null)
 
   const stat = categoryStats.find(c => c.id === id)
 
@@ -42,25 +49,36 @@ export default function CategoryDetail() {
     setEditingId(expense.id)
     setEditAmount(expense.amount.toString())
     setEditDesc(expense.description)
+    setEditError('')
   }
 
   function confirmEdit() {
-    if (!editAmount || Number(editAmount) <= 0) return
+    setEditError('')
+    const evaluated = evalAmount(editAmount)
+    if (isNaN(evaluated) || evaluated <= 0) {
+      return setEditError('Nominal tidak valid.')
+    }
+    // Guard budget: sisa kategori + nominal lama = batas maksimal nominal baru
+    const original = expenses.find(e => e.id === editingId)
+    const maxAllowed = stat.remaining + (original?.amount ?? 0)
+    if (evaluated > maxAllowed) {
+      return setEditError(`Nominal melebihi sisa budget kategori ini (maks. ${formatRupiah(maxAllowed)}).`)
+    }
     editExpense(activeMonth.id, editingId, {
-      amount: Number(editAmount),
+      amount: evaluated,
       description: toTitleCase(editDesc),
     })
     setEditingId(null)
   }
 
-  function handleDelete(expenseId) {
-    if (window.confirm('Hapus pengeluaran ini?')) {
-      deleteExpense(activeMonth.id, expenseId)
-    }
+  function confirmDelete() {
+    deleteExpense(activeMonth.id, deleteId)
+    setDeleteId(null)
+    toast?.showToast('Pengeluaran dihapus', 'success')
   }
 
   return (
-    <PageWrapper title={stat.name}>
+    <PageWrapper title={stat.name} backTo={readOnly ? `/history/${monthId}` : '/'}>
       <div className="flex flex-col gap-4">
         <Card className="p-4">
           <ProgressBar percentage={stat.percentage} />
@@ -88,13 +106,10 @@ export default function CategoryDetail() {
             <Card key={exp.id} className="p-4">
               {editingId === exp.id ? (
                 <div className="flex flex-col gap-2">
-                  <input
-                    className={editInputCls}
-                    type="number"
-                    inputMode="numeric"
+                  <AmountInput
                     value={editAmount}
-                    onChange={e => setEditAmount(e.target.value)}
-                    placeholder="Nominal"
+                    onChange={setEditAmount}
+                    inputClassName={editInputCls}
                   />
                   <input
                     className={editInputCls}
@@ -103,6 +118,9 @@ export default function CategoryDetail() {
                     onChange={e => setEditDesc(e.target.value)}
                     placeholder="Keterangan"
                   />
+                  {editError && (
+                    <p className="text-xs text-red-500 dark:text-red-400 pl-1">{editError}</p>
+                  )}
                   <div className="flex gap-2">
                     <Button
                       onClick={confirmEdit}
@@ -136,7 +154,7 @@ export default function CategoryDetail() {
                         <Pencil size={16} />
                       </button>
                       <button
-                        onClick={() => handleDelete(exp.id)}
+                        onClick={() => setDeleteId(exp.id)}
                         className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1.5"
                         aria-label="Hapus"
                       >
@@ -150,6 +168,15 @@ export default function CategoryDetail() {
           ))}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={!!deleteId}
+        title="Hapus Pengeluaran?"
+        message="Pengeluaran ini akan dihapus permanen dari catatan bulan ini."
+        confirmLabel="Hapus"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+      />
     </PageWrapper>
   )
 }

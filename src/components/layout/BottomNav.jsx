@@ -2,17 +2,17 @@ import { NavLink } from 'react-router-dom'
 import { LayoutDashboard, History, Settings, HandCoins, PieChart } from 'lucide-react'
 
 const NAV_ITEMS = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard', end: true },
+  { to: '/', icon: LayoutDashboard, label: 'Beranda', end: true },
   { to: '/analytics', icon: PieChart, label: 'Analitik' },
   { to: '/notes', icon: HandCoins, label: 'Hutang' },
-  { to: '/history', icon: History, label: 'History' },
-  { to: '/settings', icon: Settings, label: 'Settings' },
+  { to: '/history', icon: History, label: 'Riwayat' },
+  { to: '/settings', icon: Settings, label: 'Pengaturan' },
 ]
 
 export function BottomNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-20 lg:hidden">
-      <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200/60 dark:border-slate-700/60">
+      <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200/60 dark:border-slate-700/60 pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-lg mx-auto flex h-16">
           {NAV_ITEMS.map(({ to, icon: Icon, label, primary, end }) => (
             <NavLink key={to} to={to} end={end} className="flex-1">

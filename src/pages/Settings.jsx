@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
+import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { exportMonthCSV, exportMonthPDF } from '../utils/export'
 import qrisImg from '../assets/qris.png'
 
@@ -25,6 +26,9 @@ export default function Settings() {
   // Export laporan (CSV/PDF) — default bulan terbaru
   const [reportTarget, setReportTarget] = useState(availableMonths[0]?.id ?? '')
   const [pdfLoading, setPdfLoading] = useState(false)
+
+  // Modal konfirmasi aktif: { title, message, confirmLabel, onConfirm } | null
+  const [confirm, setConfirm] = useState(null)
 
   const reportMonth = availableMonths.find(m => m.id === reportTarget) ?? null
 
@@ -58,22 +62,28 @@ export default function Settings() {
       try {
         const parsed = JSON.parse(event.target.result)
         if (!parsed.months || !Array.isArray(parsed.months)) {
-          alert('Format file tidak valid. Pastikan menggunakan file backup Money Tracker.')
+          toast?.showToast('Format file tidak valid. Pastikan menggunakan file backup Money Tracker.')
           return
         }
         const count = parsed.months.length
         const existing = parsed.months.filter(m => months.some(x => x.id === m.id)).length
         const added = count - existing
-        const msg =
-          `File berisi ${count} bulan.\n` +
-          `${existing} bulan akan menimpa data yang sudah ada, ${added} bulan baru ditambahkan.\n` +
-          `Bulan lain yang tidak ada di file tetap aman.\n\nLanjutkan?`
-        if (window.confirm(msg)) {
-          importData(parsed)
-          alert('Data berhasil diimport!')
-        }
+        setConfirm({
+          title: 'Import Data',
+          message:
+            `File berisi ${count} bulan.\n` +
+            `${existing} bulan akan menimpa data yang sudah ada, ${added} bulan baru ditambahkan.\n` +
+            `Bulan lain yang tidak ada di file tetap aman.`,
+          confirmLabel: 'Import',
+          variant: 'primary',
+          onConfirm: () => {
+            importData(parsed)
+            setConfirm(null)
+            toast?.showToast('Data berhasil diimport!', 'success')
+          },
+        })
       } catch {
-        alert('File tidak valid atau rusak.')
+        toast?.showToast('File tidak valid atau rusak.')
       }
     }
     reader.readAsText(file)
@@ -84,18 +94,30 @@ export default function Settings() {
     if (!deleteTarget) return
     const month = availableMonths.find(m => m.id === deleteTarget)
     if (!month) return
-    if (window.confirm(`Hapus data bulan ${month.name}? Tindakan ini tidak bisa dibatalkan.`)) {
-      deleteMonth(deleteTarget)
-      setDeleteTarget('')
-    }
+    setConfirm({
+      title: `Hapus ${month.name}?`,
+      message: 'Data pengeluaran dan kategori bulan ini akan hilang permanen. Tindakan ini tidak bisa dibatalkan.',
+      confirmLabel: 'Hapus',
+      onConfirm: () => {
+        deleteMonth(deleteTarget)
+        setDeleteTarget('')
+        setConfirm(null)
+        toast?.showToast(`Data ${month.name} dihapus`, 'success')
+      },
+    })
   }
 
   function handleClear() {
-    if (window.confirm('Hapus SEMUA data? Tindakan ini tidak bisa dibatalkan.')) {
-      if (window.confirm('Yakin? Semua data bulan dan pengeluaran akan hilang permanen.')) {
+    setConfirm({
+      title: 'Hapus SEMUA Data?',
+      message: 'Semua data bulan, pengeluaran, dan pemasukan akan hilang permanen. Tindakan ini tidak bisa dibatalkan — pastikan kamu sudah export backup.',
+      confirmLabel: 'Hapus Semua',
+      onConfirm: () => {
         clearAllData()
-      }
-    }
+        setConfirm(null)
+        toast?.showToast('Semua data dihapus', 'success')
+      },
+    })
   }
 
   return (
@@ -304,6 +326,16 @@ export default function Settings() {
           </Button>
         </Card>
       </div>
+
+      <ConfirmDialog
+        open={!!confirm}
+        title={confirm?.title}
+        message={confirm?.message}
+        confirmLabel={confirm?.confirmLabel}
+        variant={confirm?.variant ?? 'danger'}
+        onConfirm={confirm?.onConfirm}
+        onCancel={() => setConfirm(null)}
+      />
     </PageWrapper>
   )
 }

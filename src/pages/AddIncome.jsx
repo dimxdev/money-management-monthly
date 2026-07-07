@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { useBudgetContext } from '../context/BudgetContext'
+import { useToast } from '../context/ToastContext'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -18,6 +19,7 @@ const inputCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-x
 
 export default function AddIncome() {
   const { activeMonth, addIncome } = useBudgetContext()
+  const toast = useToast()
   const navigate = useNavigate()
 
   const categories = activeMonth?.categories ?? []
@@ -45,11 +47,12 @@ export default function AddIncome() {
     } else {
       addIncome(activeMonth.id, amountNum, { type: 'existing', categoryId: target }, desc)
     }
+    toast?.showToast(`Pemasukan ${formatRupiah(amountNum)} ditambahkan`, 'success')
     navigate('/')
   }
 
   return (
-    <PageWrapper title="Tambah Pemasukan">
+    <PageWrapper title="Tambah Pemasukan" backTo="/">
       <Card className="p-4 flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <label className={labelCls}>Nominal Pemasukan</label>

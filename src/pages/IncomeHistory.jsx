@@ -1,15 +1,20 @@
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Wallet, ArrowDownLeft } from 'lucide-react'
+import { Wallet, ArrowDownLeft, Trash2 } from 'lucide-react'
 import { useBudgetContext } from '../context/BudgetContext'
+import { useToast } from '../context/ToastContext'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
+import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { formatRupiah } from '../utils/currency'
 import { formatDateTime } from '../utils/date'
 
 export default function IncomeHistory() {
   const { monthId } = useParams()
   const navigate = useNavigate()
-  const { activeMonth, months } = useBudgetContext()
+  const { activeMonth, months, deleteIncome } = useBudgetContext()
+  const toast = useToast()
+  const [deleteTarget, setDeleteTarget] = useState(null)
 
   // Mode riwayat: lihat pemasukan bulan lama (read-only)
   const readOnly = !!monthId
@@ -30,7 +35,10 @@ export default function IncomeHistory() {
   const total = incomes.reduce((sum, inc) => sum + inc.amount, 0)
 
   return (
-    <PageWrapper title={readOnly ? `Pemasukan · ${month.name}` : 'Riwayat Pemasukan'}>
+    <PageWrapper
+      title={readOnly ? `Pemasukan · ${month.name}` : 'Riwayat Pemasukan'}
+      backTo={readOnly ? `/history/${monthId}` : '/'}
+    >
       <div className="flex flex-col gap-4">
         <Card className="p-4 flex items-center justify-between">
           <div>
@@ -82,6 +90,15 @@ export default function IncomeHistory() {
                     <p className="font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
                       + {formatRupiah(inc.amount)}
                     </p>
+                    {!readOnly && (
+                      <button
+                        onClick={() => setDeleteTarget(inc)}
+                        className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1.5 shrink-0"
+                        aria-label="Hapus pemasukan"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                   </div>
                 </Card>
               )
@@ -89,6 +106,23 @@ export default function IncomeHistory() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Hapus Pemasukan?"
+        message={
+          deleteTarget
+            ? `Pemasukan ${formatRupiah(deleteTarget.amount)} akan dihapus. Total pemasukan dan budget kategori ${catMap[deleteTarget.categoryId]?.name ?? 'terkait'} ikut dikurangi.`
+            : ''
+        }
+        confirmLabel="Hapus"
+        onConfirm={() => {
+          deleteIncome(month.id, deleteTarget.id)
+          setDeleteTarget(null)
+          toast?.showToast('Pemasukan dihapus', 'success')
+        }}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </PageWrapper>
   )
 }

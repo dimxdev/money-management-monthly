@@ -82,6 +82,29 @@ export function BudgetProvider({ children }) {
     }))
   }, [setData])
 
+  // Hapus catatan pemasukan — kebalikan addIncome:
+  // income -= amount, budget kategori target -= amount (invariant income == total budget terjaga).
+  // Budget di-clamp ke 0 untuk jaga-jaga bila budget kategori sudah diubah manual lewat Setup.
+  const deleteIncome = useCallback((monthId, incomeId) => {
+    setData(prev => ({
+      months: prev.months.map(m => {
+        if (m.id !== monthId) return m
+        const record = (m.incomes ?? []).find(i => i.id === incomeId)
+        if (!record) return m
+        return {
+          ...m,
+          income: Math.max(0, m.income - record.amount),
+          incomes: m.incomes.filter(i => i.id !== incomeId),
+          categories: m.categories.map(c =>
+            c.id === record.categoryId
+              ? { ...c, budget: Math.max(0, c.budget - record.amount) }
+              : c
+          ),
+        }
+      }),
+    }))
+  }, [setData])
+
   const addExpense = useCallback((monthId, expense) => {
     const newExpense = {
       ...expense,
@@ -168,6 +191,7 @@ export function BudgetProvider({ children }) {
       addMonth,
       updateMonth,
       addIncome,
+      deleteIncome,
       addExpense,
       editExpense,
       deleteExpense,

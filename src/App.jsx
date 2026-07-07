@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { lazy, Suspense, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { BudgetProvider, useBudgetContext } from './context/BudgetContext'
 import { DarkModeProvider } from './context/DarkModeContext'
 import { ToastProvider } from './context/ToastContext'
@@ -18,6 +18,15 @@ const History = lazy(() => import('./pages/History'))
 const Notes = lazy(() => import('./pages/Notes'))
 const Analytics = lazy(() => import('./pages/Analytics'))
 const Settings = lazy(() => import('./pages/Settings'))
+
+// Reset scroll ke atas tiap pindah halaman (React Router tidak melakukannya otomatis)
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+  return null
+}
 
 function PageLoader() {
   return (
@@ -61,6 +70,7 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <DarkModeProvider>
       <ToastProvider>
       <BudgetProvider>

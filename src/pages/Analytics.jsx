@@ -241,8 +241,9 @@ export default function Analytics() {
         ) : (
           <>
         {/* Ringkasan saldo */}
-        <div className="grid grid-cols-3 gap-3">
-          <Card className="p-3 lg:p-4">
+        {/* Mobile: Saldo satu baris penuh, dua kartu lain berdampingan — agar nominal tidak terpotong */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          <Card className="p-3 lg:p-4 col-span-2 lg:col-span-1">
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Saldo</p>
             <p className="text-sm lg:text-base font-black text-slate-800 dark:text-slate-100 mt-1 truncate">{formatRupiah(income)}</p>
           </Card>

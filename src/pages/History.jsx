@@ -137,7 +137,7 @@ function HistoryDetail({ month }) {
   }, [transactions, filterCat, oldestFirst, query])
 
   return (
-    <PageWrapper title={month.name}>
+    <PageWrapper title={month.name} backTo="/history">
       <div className="flex flex-col gap-4">
         <SummaryCard
           month={month}

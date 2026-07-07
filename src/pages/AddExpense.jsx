@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useBudgetContext } from '../context/BudgetContext'
+import { useToast } from '../context/ToastContext'
 import { useBudget } from '../hooks/useBudget'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
@@ -16,6 +17,7 @@ const inputCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-x
 export default function AddExpense() {
   const { activeMonth, addExpense } = useBudgetContext()
   const { categoryStats } = useBudget(activeMonth)
+  const toast = useToast()
   const navigate = useNavigate()
 
   const [categoryId, setCategoryId] = useState(activeMonth?.categories[0]?.id ?? '')
@@ -52,11 +54,12 @@ export default function AddExpense() {
       description: toTitleCase(description),
       ...(createdAt && { createdAt }),
     })
+    toast?.showToast(`Pengeluaran ${formatRupiah(evaluated)} tercatat`, 'success')
     navigate('/')
   }
 
   return (
-    <PageWrapper title="Catat Pengeluaran">
+    <PageWrapper title="Catat Pengeluaran" backTo="/">
       <Card className="p-4 flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <label className={labelCls}>Kategori</label>
