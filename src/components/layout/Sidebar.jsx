@@ -1,6 +1,9 @@
 import { NavLink } from 'react-router-dom'
+import { m as M } from 'motion/react'
 import { LayoutDashboard, PlusCircle, History, Settings, Wallet, HandCoins, PieChart } from 'lucide-react'
 import { ThemeToggle } from '../ui/ThemeToggle'
+
+const navSpring = { type: 'spring', stiffness: 500, damping: 35 }
 
 const NAV_ITEMS = [
   { to: '/', icon: LayoutDashboard, label: 'Beranda', end: true },
@@ -34,18 +37,32 @@ export function Sidebar() {
           <NavLink key={to} to={to} end={end}>
             {({ isActive }) => (
               <div
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 ${
+                className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-colors duration-150 ${
                   isActive && primary
-                    ? 'bg-gradient-to-r from-violet-500 to-indigo-600 text-white shadow-md shadow-violet-200 dark:shadow-violet-900/50'
+                    ? 'text-white'
                     : isActive
-                    ? 'bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400'
+                    ? 'text-violet-700 dark:text-violet-400'
                     : primary
                     ? 'text-violet-500 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 hover:text-violet-700'
                     : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
               >
-                <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
-                {label}
+                {/* Pill aktif — meluncur antar menu (shared layout) */}
+                {isActive && (
+                  <M.span
+                    layoutId="sidebar-pill"
+                    transition={navSpring}
+                    className={`absolute inset-0 rounded-xl ${
+                      primary
+                        ? 'bg-gradient-to-r from-violet-500 to-indigo-600 shadow-md shadow-violet-200 dark:shadow-violet-900/50'
+                        : 'bg-violet-50 dark:bg-violet-900/30'
+                    }`}
+                  />
+                )}
+                <span className="relative flex items-center gap-3">
+                  <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+                  {label}
+                </span>
               </div>
             )}
           </NavLink>

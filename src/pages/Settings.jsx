@@ -6,6 +6,7 @@ import { useToast } from '../context/ToastContext'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
+import { Stagger, StaggerItem } from '../components/ui/Stagger'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { exportMonthCSV, exportMonthPDF } from '../utils/export'
 import qrisImg from '../assets/qris.png'
@@ -122,8 +123,9 @@ export default function Settings() {
 
   return (
     <PageWrapper title="Pengaturan">
-      <div className="flex flex-col gap-4">
+      <Stagger className="flex flex-col gap-4">
 
+        <StaggerItem>
         <Card className="p-4 flex flex-col gap-3">
           <h2 className="font-semibold text-slate-800 dark:text-slate-100">Budget & Kategori</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -137,7 +139,9 @@ export default function Settings() {
             <SlidersHorizontal size={18} /> Edit Budget & Kategori
           </Button>
         </Card>
+        </StaggerItem>
 
+        <StaggerItem>
         <Card className="p-4 flex flex-col gap-3">
           <h2 className="font-semibold text-slate-800 dark:text-slate-100">Backup Data</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -183,7 +187,9 @@ export default function Settings() {
             onChange={handleImport}
           />
         </Card>
+        </StaggerItem>
 
+        <StaggerItem>
         <Card className="p-4 flex flex-col gap-3">
           <h2 className="font-semibold text-slate-800 dark:text-slate-100">Export Laporan</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -233,7 +239,9 @@ export default function Settings() {
             </>
           )}
         </Card>
+        </StaggerItem>
 
+        <StaggerItem>
         <Card className="p-4 flex flex-col gap-3">
           <h2 className="font-semibold text-slate-800 dark:text-slate-100">Bantuan & Masukan</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -253,7 +261,9 @@ export default function Settings() {
             </Button>
           </a>
         </Card>
+        </StaggerItem>
 
+        <StaggerItem>
         <Card className="p-4 flex flex-col gap-3">
           <h2 className="font-semibold text-slate-800 dark:text-slate-100">Hapus Data Bulan</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -286,7 +296,9 @@ export default function Settings() {
             </>
           )}
         </Card>
+        </StaggerItem>
 
+        <StaggerItem>
         <Card className="p-4 flex flex-col gap-3">
           <h2 className="font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2">
             <Heart size={18} className="text-cyan-500" /> Dukung Developer
@@ -311,7 +323,9 @@ export default function Settings() {
             </Button>
           </a>
         </Card>
+        </StaggerItem>
 
+        <StaggerItem>
         <Card className="p-4 flex flex-col gap-3">
           <h2 className="font-semibold text-red-600 dark:text-red-400">Danger Zone</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -325,7 +339,8 @@ export default function Settings() {
             <Trash2 size={18} /> Hapus Semua Data
           </Button>
         </Card>
-      </div>
+        </StaggerItem>
+      </Stagger>
 
       <ConfirmDialog
         open={!!confirm}

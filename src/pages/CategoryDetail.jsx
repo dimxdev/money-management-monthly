@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { m as M, AnimatePresence } from 'motion/react'
 import { Pencil, Trash2, Check, X, Search } from 'lucide-react'
 import { useBudgetContext } from '../context/BudgetContext'
 import { useToast } from '../context/ToastContext'
@@ -13,7 +14,9 @@ import { formatRupiah } from '../utils/currency'
 import { formatDateTime } from '../utils/date'
 import { toTitleCase } from '../utils/text'
 import { evalAmount } from '../utils/math'
+import { spring } from '../utils/motion'
 import { AmountInput } from '../components/ui/AmountInput'
+import { Stagger, StaggerItem } from '../components/ui/Stagger'
 
 const editInputCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-400 dark:placeholder:text-slate-600'
 
@@ -85,7 +88,8 @@ export default function CategoryDetail() {
 
   return (
     <PageWrapper title={stat.name} backTo={readOnly ? `/history/${monthId}` : '/'}>
-      <div className="flex flex-col gap-4">
+      <Stagger className="flex flex-col gap-4">
+        <StaggerItem>
         <Card className="p-4">
           <ProgressBar percentage={stat.percentage} />
           <div className="flex justify-between mt-3 text-sm">
@@ -100,8 +104,9 @@ export default function CategoryDetail() {
           </div>
           <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Budget: {formatRupiah(stat.budget)}</p>
         </Card>
+        </StaggerItem>
 
-        <div className="flex flex-col gap-2">
+        <StaggerItem className="flex flex-col gap-2">
           {/* Pencarian pengeluaran di kategori ini */}
           {expenses.length > 0 && (
             <div className="relative mb-1">
@@ -139,8 +144,17 @@ export default function CategoryDetail() {
             </p>
           ) : null}
 
+          <AnimatePresence mode="popLayout" initial={false}>
           {visible.map(exp => (
-            <Card key={exp.id} className="p-4">
+            <M.div
+              key={exp.id}
+              layout
+              transition={spring}
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+            >
+            <Card className="p-4">
               {editingId === exp.id ? (
                 <div className="flex flex-col gap-2">
                   <AmountInput
@@ -202,9 +216,11 @@ export default function CategoryDetail() {
                 </div>
               )}
             </Card>
+            </M.div>
           ))}
-        </div>
-      </div>
+          </AnimatePresence>
+        </StaggerItem>
+      </Stagger>
 
       <ConfirmDialog
         open={!!deleteId}

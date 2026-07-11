@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { LazyMotion } from 'motion/react'
 import { BudgetProvider, useBudgetContext } from './context/BudgetContext'
 import { DarkModeProvider } from './context/DarkModeContext'
 import { ToastProvider } from './context/ToastContext'
@@ -18,6 +19,10 @@ const History = lazy(() => import('./pages/History'))
 const Notes = lazy(() => import('./pages/Notes'))
 const Analytics = lazy(() => import('./pages/Analytics'))
 const Settings = lazy(() => import('./pages/Settings'))
+
+// Fitur animasi Motion dimuat async (chunk terpisah) — komponen <m.*> jalan tanpa
+// animasi sampai chunk ini siap, jadi tidak memblokir render awal.
+const loadMotionFeatures = () => import('./motion-features').then(mod => mod.default)
 
 // Reset scroll ke atas tiap pindah halaman (React Router tidak melakukannya otomatis)
 function ScrollToTop() {
@@ -71,6 +76,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <LazyMotion features={loadMotionFeatures} strict>
       <DarkModeProvider>
       <ToastProvider>
       <BudgetProvider>
@@ -83,6 +89,7 @@ export default function App() {
       </BudgetProvider>
       </ToastProvider>
       </DarkModeProvider>
+      </LazyMotion>
     </BrowserRouter>
   )
 }

@@ -11,6 +11,7 @@ import { toTitleCase } from '../utils/text'
 import { evalAmount } from '../utils/math'
 import { toDatetimeLocal } from '../utils/date'
 import { AmountInput } from '../components/ui/AmountInput'
+import { Stagger, StaggerItem } from '../components/ui/Stagger'
 
 const labelCls = 'text-sm font-medium text-slate-700 dark:text-slate-300'
 const inputCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-400 dark:placeholder:text-slate-600 dark:focus:bg-slate-700'
@@ -61,8 +62,10 @@ export default function AddExpense() {
 
   return (
     <PageWrapper title="Catat Pengeluaran" backTo="/">
+      <Stagger>
+      <StaggerItem>
       <Card className="p-4 flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
+        <StaggerItem className="flex flex-col gap-1">
           <label className={labelCls}>Kategori</label>
           <select
             className={inputCls}
@@ -90,14 +93,14 @@ export default function AddExpense() {
               </span>
             </p>
           )}
-        </div>
+        </StaggerItem>
 
-        <div className="flex flex-col gap-1">
+        <StaggerItem className="flex flex-col gap-1">
           <label className={labelCls}>Nominal</label>
           <AmountInput value={amount} onChange={setAmount} />
-        </div>
+        </StaggerItem>
 
-        <div className="flex flex-col gap-1">
+        <StaggerItem className="flex flex-col gap-1">
           <label className={labelCls}>Keterangan</label>
           <input
             className={inputCls}
@@ -107,9 +110,9 @@ export default function AddExpense() {
             onChange={e => setDescription(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSave()}
           />
-        </div>
+        </StaggerItem>
 
-        <div className="flex flex-col gap-1">
+        <StaggerItem className="flex flex-col gap-1">
           <label className={labelCls}>Tanggal & Waktu</label>
           <input
             className={inputCls}
@@ -117,7 +120,7 @@ export default function AddExpense() {
             value={datetime}
             onChange={e => setDatetime(e.target.value)}
           />
-        </div>
+        </StaggerItem>
 
         {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/40 rounded-xl px-4 py-3">
@@ -125,14 +128,18 @@ export default function AddExpense() {
           </div>
         )}
 
-        <Button
-          onClick={handleSave}
-          disabled={!!selectedStat && evaluated > selectedStat.remaining}
-          className="w-full py-3 text-base"
-        >
-          Simpan
-        </Button>
+        <StaggerItem>
+          <Button
+            onClick={handleSave}
+            disabled={!!selectedStat && evaluated > selectedStat.remaining}
+            className="w-full py-3 text-base"
+          >
+            Simpan
+          </Button>
+        </StaggerItem>
       </Card>
+      </StaggerItem>
+      </Stagger>
     </PageWrapper>
   )
 }

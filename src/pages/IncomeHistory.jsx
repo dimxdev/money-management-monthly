@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { m as M, AnimatePresence } from 'motion/react'
 import { Wallet, ArrowDownLeft, Trash2 } from 'lucide-react'
 import { useBudgetContext } from '../context/BudgetContext'
 import { useToast } from '../context/ToastContext'
@@ -8,6 +9,8 @@ import { Card } from '../components/ui/Card'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { formatRupiah } from '../utils/currency'
 import { formatDateTime } from '../utils/date'
+import { spring } from '../utils/motion'
+import { Stagger, StaggerItem } from '../components/ui/Stagger'
 
 export default function IncomeHistory() {
   const { monthId } = useParams()
@@ -39,7 +42,8 @@ export default function IncomeHistory() {
       title={readOnly ? `Pemasukan · ${month.name}` : 'Riwayat Pemasukan'}
       backTo={readOnly ? `/history/${monthId}` : '/'}
     >
-      <div className="flex flex-col gap-4">
+      <Stagger className="flex flex-col gap-4">
+        <StaggerItem>
         <Card className="p-4 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
@@ -53,9 +57,10 @@ export default function IncomeHistory() {
             <Wallet size={20} className="text-emerald-600 dark:text-emerald-400" />
           </div>
         </Card>
+        </StaggerItem>
 
         {incomes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-3 text-slate-300 dark:text-slate-600">
+          <StaggerItem className="flex flex-col items-center justify-center py-16 gap-3 text-slate-300 dark:text-slate-600">
             <Wallet size={36} strokeWidth={1.2} />
             <p className="text-sm font-medium text-slate-400 dark:text-slate-500">
               Belum ada pemasukan tercatat
@@ -68,13 +73,22 @@ export default function IncomeHistory() {
                 Tambah pemasukan →
               </button>
             )}
-          </div>
+          </StaggerItem>
         ) : (
-          <div className="flex flex-col gap-2">
+          <StaggerItem className="flex flex-col gap-2">
+            <AnimatePresence mode="popLayout" initial={false}>
             {incomes.map(inc => {
               const cat = catMap[inc.categoryId]
               return (
-                <Card key={inc.id} className="p-4">
+                <M.div
+                  key={inc.id}
+                  layout
+                  transition={spring}
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                >
+                <Card className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="h-9 w-9 shrink-0 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
                       <ArrowDownLeft size={18} className="text-emerald-600 dark:text-emerald-400" />
@@ -101,11 +115,13 @@ export default function IncomeHistory() {
                     )}
                   </div>
                 </Card>
+                </M.div>
               )
             })}
-          </div>
+            </AnimatePresence>
+          </StaggerItem>
         )}
-      </div>
+      </Stagger>
 
       <ConfirmDialog
         open={!!deleteTarget}

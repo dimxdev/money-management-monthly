@@ -4,6 +4,7 @@ import { useBudgetContext } from '../context/BudgetContext'
 import { useBudget } from '../hooks/useBudget'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
+import { Stagger, StaggerItem } from '../components/ui/Stagger'
 import { SummaryCard } from '../components/dashboard/SummaryCard'
 import { CategoryCard } from '../components/dashboard/CategoryCard'
 import { SpendingChart } from '../components/dashboard/SpendingChart'
@@ -75,17 +76,19 @@ export default function Dashboard() {
 
   return (
     <PageWrapper wide>
-      <div className="flex flex-col gap-4">
-        <SummaryCard
-          month={activeMonth}
-          totalSpent={totalSpent}
-          remaining={remaining}
-          onEdit={() => navigate('/setup')}
-          onIncomeClick={() => navigate('/income-history')}
-        />
+      <Stagger className="flex flex-col gap-4">
+        <StaggerItem>
+          <SummaryCard
+            month={activeMonth}
+            totalSpent={totalSpent}
+            remaining={remaining}
+            onEdit={() => navigate('/setup')}
+            onIncomeClick={() => navigate('/income-history')}
+          />
+        </StaggerItem>
 
         {/* Aksi cepat */}
-        <div className="grid grid-cols-2 gap-3">
+        <StaggerItem className="grid grid-cols-2 gap-3">
           <button
             onClick={() => navigate('/add')}
             className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 text-white font-semibold py-3 shadow-md shadow-violet-200 dark:shadow-violet-900/50 active:scale-[0.98] transition-transform"
@@ -98,20 +101,22 @@ export default function Dashboard() {
           >
             <Wallet size={18} /> Tambah Pemasukan
           </button>
-        </div>
+        </StaggerItem>
 
         {unallocated > 0 && (
-          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 rounded-2xl px-4 py-3 flex items-center gap-2">
+          <StaggerItem className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 rounded-2xl px-4 py-3 flex items-center gap-2">
             <AlertTriangle size={16} className="text-amber-500 shrink-0" />
             <p className="text-sm text-amber-700 dark:text-amber-400 font-medium">
               Belum dialokasikan: {formatRupiah(unallocated)}
             </p>
-          </div>
+          </StaggerItem>
         )}
 
-        <SpendingChart month={activeMonth} />
+        <StaggerItem>
+          <SpendingChart month={activeMonth} />
+        </StaggerItem>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 items-start">
+        <StaggerItem className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4 items-start">
           <div className="flex flex-col gap-3">
             <p className="hidden lg:block text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
               Kategori Budget
@@ -131,8 +136,8 @@ export default function Dashboard() {
             </p>
             <RecentPanel activeMonth={activeMonth} />
           </div>
-        </div>
-      </div>
+        </StaggerItem>
+      </Stagger>
     </PageWrapper>
   )
 }

@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+// Alias `m as M` — ESLint config project ini hanya mengabaikan identifier kapital di JSX
+import { m as M, AnimatePresence } from 'motion/react'
 import { Plus, Pencil, Trash2, X, Check, HandCoins, ChevronDown, UserPlus, CheckCircle2, Undo2 } from 'lucide-react'
 import { useStorage } from '../hooks/useStorage'
 import { PageWrapper } from '../components/layout/PageWrapper'
@@ -8,7 +10,9 @@ import { formatRupiah } from '../utils/currency'
 import { formatDate, toDatetimeLocal } from '../utils/date'
 import { toTitleCase } from '../utils/text'
 import { evalAmount } from '../utils/math'
+import { spring, modalSpring } from '../utils/motion'
 import { AmountInput } from '../components/ui/AmountInput'
+import { Stagger, StaggerItem } from '../components/ui/Stagger'
 
 const STORAGE_KEY = 'money-tracker-notes'
 const inputCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-400 dark:placeholder:text-slate-600 dark:focus:bg-slate-700'
@@ -214,8 +218,9 @@ export default function Notes() {
 
   return (
     <PageWrapper title="Hutang / Catatan">
-      <div className="flex flex-col gap-4">
+      <Stagger className="flex flex-col gap-4">
         {/* Penjelasan singkat menu */}
+        <StaggerItem>
         <Card className="p-4 flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-md shadow-violet-300/40 dark:shadow-violet-900/50">
             <HandCoins size={20} className="text-white" strokeWidth={2.2} />
@@ -228,9 +233,11 @@ export default function Notes() {
             </p>
           </div>
         </Card>
+        </StaggerItem>
 
         {/* Ringkasan total lintas orang */}
         {(totals.lending > 0 || totals.borrowing > 0) && (
+          <StaggerItem>
           <Card className="p-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-900/40 px-3 py-2.5">
@@ -261,10 +268,11 @@ export default function Notes() {
               </span>
             </div>
           </Card>
+          </StaggerItem>
         )}
 
         {/* List orang */}
-        <div className="flex flex-col gap-2">
+        <StaggerItem className="flex flex-col gap-2">
           {list.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-sm text-slate-400 dark:text-slate-500">Belum ada orang.</p>
@@ -273,7 +281,8 @@ export default function Notes() {
               </p>
             </div>
           ) : (
-            sortedList.map(person => {
+            <AnimatePresence mode="popLayout" initial={false}>
+            {sortedList.map(person => {
               const items = person.items ?? []
               const net = netBalance(items)
               const isOpen = expanded.has(person.id)
@@ -284,7 +293,15 @@ export default function Notes() {
                 return new Date(b.createdAt) - new Date(a.createdAt)
               })
               return (
-                <Card key={person.id} className="overflow-hidden">
+                <M.div
+                  key={person.id}
+                  layout
+                  transition={spring}
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                >
+                <Card className="overflow-hidden">
                   {/* Header orang — klik untuk expand */}
                   <div className="flex items-center gap-2 p-4">
                     <button
@@ -333,15 +350,32 @@ export default function Notes() {
                   </div>
 
                   {/* Body — daftar hutang orang ini */}
+                  <AnimatePresence initial={false}>
                   {isOpen && (
+                    <M.div
+                      key="body"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: 'easeInOut' }}
+                      className="overflow-hidden"
+                    >
                     <div className="border-t border-slate-100 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/30 px-4 py-3 flex flex-col gap-2">
                       {sorted.length === 0 ? (
                         <p className="text-center text-xs text-slate-400 dark:text-slate-500 py-2">
                           Belum ada catatan hutang.
                         </p>
                       ) : (
-                        sorted.map(item => (
-                          <div key={item.id} className={`flex items-start justify-between gap-2 rounded-xl border px-3 py-2.5 transition-colors ${
+                        <AnimatePresence mode="popLayout" initial={false}>
+                        {sorted.map(item => (
+                          <M.div
+                            key={item.id}
+                            layout
+                            transition={spring}
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className={`flex items-start justify-between gap-2 rounded-xl border px-3 py-2.5 transition-colors ${
                             item.settled
                               ? 'bg-slate-50 dark:bg-slate-800/40 border-slate-100 dark:border-slate-700/40'
                               : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700/60'
@@ -402,8 +436,9 @@ export default function Notes() {
                                 <Trash2 size={14} />
                               </button>
                             </div>
-                          </div>
-                        ))
+                          </M.div>
+                        ))}
+                        </AnimatePresence>
                       )}
                       <button
                         onClick={() => openAddItem(person.id)}
@@ -412,13 +447,17 @@ export default function Notes() {
                         <Plus size={16} /> Tambah hutang
                       </button>
                     </div>
+                    </M.div>
                   )}
+                  </AnimatePresence>
                 </Card>
+                </M.div>
               )
-            })
+            })}
+            </AnimatePresence>
           )}
-        </div>
-      </div>
+        </StaggerItem>
+      </Stagger>
 
       {/* FAB — tambah orang */}
       <button
@@ -430,12 +469,24 @@ export default function Notes() {
       </button>
 
       {/* Modal tambah / edit orang */}
+      <AnimatePresence>
       {personModal && (
-        <div
+        <M.div
           className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18 }}
           onClick={() => setPersonModal(false)}
         >
-          <div className="w-full max-w-md animate-pop-in" onClick={e => e.stopPropagation()}>
+          <M.div
+            className="w-full max-w-md"
+            initial={{ opacity: 0, scale: 0.94, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 12 }}
+            transition={modalSpring}
+            onClick={e => e.stopPropagation()}
+          >
             <Card className="p-5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <h2 className="font-bold text-slate-900 dark:text-slate-100">
@@ -478,17 +529,30 @@ export default function Notes() {
                 </Button>
               </div>
             </Card>
-          </div>
-        </div>
+          </M.div>
+        </M.div>
       )}
+      </AnimatePresence>
 
       {/* Modal tambah / edit hutang */}
+      <AnimatePresence>
       {itemModal && (
-        <div
+        <M.div
           className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18 }}
           onClick={() => setItemModal(false)}
         >
-          <div className="w-full max-w-md animate-pop-in" onClick={e => e.stopPropagation()}>
+          <M.div
+            className="w-full max-w-md"
+            initial={{ opacity: 0, scale: 0.94, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 12 }}
+            transition={modalSpring}
+            onClick={e => e.stopPropagation()}
+          >
             <Card className="p-5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <h2 className="font-bold text-slate-900 dark:text-slate-100">
@@ -579,9 +643,10 @@ export default function Notes() {
                 </Button>
               </div>
             </Card>
-          </div>
-        </div>
+          </M.div>
+        </M.div>
       )}
+      </AnimatePresence>
     </PageWrapper>
   )
 }

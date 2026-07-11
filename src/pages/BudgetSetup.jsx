@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { m as M, AnimatePresence } from 'motion/react'
 import { Plus, Trash2, PiggyBank, Wallet, Copy } from 'lucide-react'
 import { useBudgetContext } from '../context/BudgetContext'
 import { useToast } from '../context/ToastContext'
@@ -11,7 +12,11 @@ import { formatRupiah } from '../utils/currency'
 import { SAVINGS_ID, makeSavingsCategory, isSavings } from '../utils/savings'
 import { toTitleCase } from '../utils/text'
 import { evalAmount } from '../utils/math'
+import { spring } from '../utils/motion'
 import { AmountInput } from '../components/ui/AmountInput'
+
+// Key lokal stabil untuk baris kategori baru (belum punya id) — dibutuhkan layout animation
+const makeRowKey = () => `row_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
 
 const MONTH_NAMES = [
   'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -90,7 +95,7 @@ export default function BudgetSetup() {
   const savingsBudget = Math.max(0, incomeNum - totalBudget)
 
   function addCategory() {
-    setCategories(prev => [...prev, { name: '', budget: '' }])
+    setCategories(prev => [...prev, { name: '', budget: '', _key: makeRowKey() }])
   }
 
   function updateCategory(index, field, value) {
@@ -111,7 +116,7 @@ export default function BudgetSetup() {
 
     const copied = prevMonth.categories
       .filter(c => !isSavings(c))
-      .map(c => ({ name: c.name, budget: c.budget.toString() }))
+      .map(c => ({ name: c.name, budget: c.budget.toString(), _key: makeRowKey() }))
     if (copied.length === 0) {
       toast?.showToast(`${prevMonth.name} tidak punya kategori untuk disalin.`, 'error')
       return
@@ -243,8 +248,17 @@ export default function BudgetSetup() {
         )}
 
         <div className="flex flex-col gap-2">
+          <AnimatePresence mode="popLayout" initial={false}>
           {categories.map((cat, i) => (
-            <Card key={cat.id ?? i} className="p-3 flex gap-2 items-start">
+            <M.div
+              key={cat.id ?? cat._key ?? i}
+              layout
+              transition={spring}
+              initial={{ opacity: 0, y: -8, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+            >
+            <Card className="p-3 flex gap-2 items-start">
               <div className="flex-1 flex flex-col gap-2">
                 <input
                   className={inlineCls}
@@ -268,7 +282,9 @@ export default function BudgetSetup() {
                 <Trash2 size={18} />
               </button>
             </Card>
+            </M.div>
           ))}
+          </AnimatePresence>
         </div>
 
         <Button

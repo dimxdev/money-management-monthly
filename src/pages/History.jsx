@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { m as M, AnimatePresence } from 'motion/react'
 import { ChevronRight, ArrowDownLeft, ArrowUpRight, ArrowDownUp, Receipt, Search, X } from 'lucide-react'
 import { useBudgetContext } from '../context/BudgetContext'
 import { useBudget } from '../hooks/useBudget'
@@ -9,6 +10,8 @@ import { SummaryCard } from '../components/dashboard/SummaryCard'
 import { SpendingChart } from '../components/dashboard/SpendingChart'
 import { formatRupiah } from '../utils/currency'
 import { formatDateTime } from '../utils/date'
+import { spring } from '../utils/motion'
+import { Stagger, StaggerItem } from '../components/ui/Stagger'
 
 function HistoryList() {
   const { months } = useBudgetContext()
@@ -38,9 +41,9 @@ function HistoryList() {
 
   return (
     <PageWrapper title="Riwayat">
-      <div className="flex flex-col gap-3">
+      <Stagger className="flex flex-col gap-3">
         {/* Pencarian pengeluaran lintas bulan */}
-        <div className="relative">
+        <StaggerItem className="relative">
           <Search
             size={16}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none"
@@ -62,7 +65,7 @@ function HistoryList() {
               <X size={14} />
             </button>
           )}
-        </div>
+        </StaggerItem>
 
         {q ? (
           /* Mode pencarian — hasil lintas bulan */
@@ -80,12 +83,19 @@ function HistoryList() {
               </p>
               <Card className="p-4">
                 <div className="flex flex-col divide-y divide-slate-50/80 dark:divide-slate-700/50">
+                  <AnimatePresence mode="popLayout" initial={false}>
                   {results.map(e => (
-                    <button
+                    <M.button
                       key={`${e.monthId}_${e.id}`}
+                      layout
+                      transition={spring}
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.97 }}
+                      whileTap={{ scale: 0.99 }}
                       type="button"
                       onClick={() => navigate(`/history/${e.monthId}/category/${e.categoryId}`)}
-                      className="flex w-full items-center gap-3 py-3 text-left hover:bg-slate-50/70 dark:hover:bg-slate-800/40 active:bg-slate-100/80 dark:active:bg-slate-700/40 active:scale-[0.99] -mx-2 px-2 rounded-xl transition-all duration-150"
+                      className="flex w-full items-center gap-3 py-3 text-left hover:bg-slate-50/70 dark:hover:bg-slate-800/40 active:bg-slate-100/80 dark:active:bg-slate-700/40 -mx-2 px-2 rounded-xl transition-colors duration-150"
                     >
                       <div className="h-9 w-9 shrink-0 rounded-xl flex items-center justify-center bg-violet-100 dark:bg-violet-900/40">
                         <ArrowUpRight size={17} className="text-violet-600 dark:text-violet-400" />
@@ -101,8 +111,9 @@ function HistoryList() {
                       <p className="text-sm font-bold shrink-0 text-slate-700 dark:text-slate-200">
                         {formatRupiah(e.amount)}
                       </p>
-                    </button>
+                    </M.button>
                   ))}
+                  </AnimatePresence>
                 </div>
               </Card>
             </>
@@ -119,8 +130,8 @@ function HistoryList() {
               const totalSpent = month.expenses.reduce((s, e) => s + e.amount, 0)
               const remaining = month.income - totalSpent
               return (
+                <StaggerItem key={month.id}>
                 <Card
-                  key={month.id}
                   className="p-4 cursor-pointer active:scale-[0.98] hover:shadow-md transition-all duration-200"
                   onClick={() => navigate(`/history/${month.id}`)}
                 >
@@ -137,11 +148,12 @@ function HistoryList() {
                     <ChevronRight size={18} className="text-slate-400 dark:text-slate-500 shrink-0" />
                   </div>
                 </Card>
+                </StaggerItem>
               )
             })}
           </>
         )}
-      </div>
+      </Stagger>
     </PageWrapper>
   )
 }
@@ -232,16 +244,20 @@ function HistoryDetail({ month }) {
 
   return (
     <PageWrapper title={month.name} backTo="/history">
-      <div className="flex flex-col gap-4">
-        <SummaryCard
-          month={month}
-          totalSpent={totalSpent}
-          remaining={remaining}
-          onIncomeClick={() => navigate(`/history/${month.id}/income`)}
-        />
-        <SpendingChart month={month} />
+      <Stagger className="flex flex-col gap-4">
+        <StaggerItem>
+          <SummaryCard
+            month={month}
+            totalSpent={totalSpent}
+            remaining={remaining}
+            onIncomeClick={() => navigate(`/history/${month.id}/income`)}
+          />
+        </StaggerItem>
+        <StaggerItem>
+          <SpendingChart month={month} />
+        </StaggerItem>
 
-        <div className="flex flex-col gap-3">
+        <StaggerItem className="flex flex-col gap-3">
           {/* Header + toggle urutan */}
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">
@@ -316,23 +332,33 @@ function HistoryDetail({ month }) {
               </div>
             ) : (
               <div className="flex flex-col divide-y divide-slate-50/80 dark:divide-slate-700/50">
+                <AnimatePresence mode="popLayout" initial={false}>
                 {visible.map(tx => (
-                  <TransactionRow
+                  <M.div
                     key={`${tx.type}_${tx.id}`}
-                    tx={tx}
-                    catName={catMap[tx.categoryId] ?? '—'}
-                    onClick={
-                      tx.type === 'expense'
-                        ? () => navigate(`/history/${month.id}/category/${tx.categoryId}`)
-                        : undefined
-                    }
-                  />
+                    layout
+                    transition={spring}
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.97 }}
+                  >
+                    <TransactionRow
+                      tx={tx}
+                      catName={catMap[tx.categoryId] ?? '—'}
+                      onClick={
+                        tx.type === 'expense'
+                          ? () => navigate(`/history/${month.id}/category/${tx.categoryId}`)
+                          : undefined
+                      }
+                    />
+                  </M.div>
                 ))}
+                </AnimatePresence>
               </div>
             )}
           </Card>
-        </div>
-      </div>
+        </StaggerItem>
+      </Stagger>
     </PageWrapper>
   )
 }

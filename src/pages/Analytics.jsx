@@ -14,6 +14,7 @@ import { useDarkMode } from '../hooks/useDarkMode'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
+import { Stagger, StaggerItem } from '../components/ui/Stagger'
 import { SpendingChart } from '../components/dashboard/SpendingChart'
 import { formatRupiah } from '../utils/currency'
 import { buildTrend, monthStats, buildWeekdayData } from '../utils/analytics'
@@ -206,8 +207,9 @@ export default function Analytics() {
 
   return (
     <PageWrapper title="Analitik" wide>
-      <div className="flex flex-col gap-4">
+      <Stagger className="flex flex-col gap-4">
         {/* Pemilih bulan */}
+        <StaggerItem>
         <Card className="p-3 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Bulan</p>
@@ -230,19 +232,22 @@ export default function Analytics() {
             ))}
           </select>
         </Card>
+        </StaggerItem>
 
         {income <= 0 ? (
+          <StaggerItem>
           <Card className="p-8 flex flex-col items-center gap-3 text-center">
             <Wallet size={40} strokeWidth={1.2} className="text-slate-300 dark:text-slate-600" />
             <p className="text-sm text-slate-500 dark:text-slate-400">
               Bulan ini belum punya pemasukan, jadi belum ada analitik penggunaan saldo.
             </p>
           </Card>
+          </StaggerItem>
         ) : (
           <>
         {/* Ringkasan saldo */}
         {/* Mobile: Saldo satu baris penuh, dua kartu lain berdampingan — agar nominal tidak terpotong */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+        <StaggerItem className="grid grid-cols-2 lg:grid-cols-3 gap-3">
           <Card className="p-3 lg:p-4 col-span-2 lg:col-span-1">
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Saldo</p>
             <p className="text-sm lg:text-base font-black text-slate-800 dark:text-slate-100 mt-1 truncate">{formatRupiah(income)}</p>
@@ -257,11 +262,11 @@ export default function Analytics() {
             <p className="text-sm lg:text-base font-black text-emerald-600 dark:text-emerald-400 mt-1 truncate">{formatRupiah(unused)}</p>
             <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 mt-0.5">{unusedPct.toFixed(1)}%</p>
           </Card>
-        </div>
+        </StaggerItem>
 
         {/* Insight cards — angka penting jadi kalimat */}
         {stats && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <StaggerItem className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <InsightCard
               icon={Gauge}
               label="Rata-rata / hari"
@@ -305,11 +310,12 @@ export default function Analytics() {
                 sub={formatRupiah(stats.busiestWeekday.total)}
               />
             )}
-          </div>
+          </StaggerItem>
         )}
 
         {/* Tren bulanan — butuh minimal 2 bulan */}
         {trend.length >= 2 && (
+          <StaggerItem>
           <Card className="p-4 lg:p-5">
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center gap-2">
@@ -343,9 +349,11 @@ export default function Analytics() {
               </ComposedChart>
             </ResponsiveContainer>
           </Card>
+          </StaggerItem>
         )}
 
         {/* Pie chart — penggunaan saldo */}
+        <StaggerItem>
         <Card className="p-4 lg:p-5">
           <div className="flex items-center gap-2 mb-1">
             <PieChartIcon size={16} className="text-violet-500" />
@@ -413,8 +421,10 @@ export default function Analytics() {
             </div>
           </div>
         </Card>
+        </StaggerItem>
 
         {/* Bar chart — budget vs terpakai */}
+        <StaggerItem>
         <Card className="p-4 lg:p-5">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
@@ -446,9 +456,11 @@ export default function Analytics() {
             </ResponsiveContainer>
           )}
         </Card>
+        </StaggerItem>
 
         {/* Transaksi terbesar */}
         {stats && stats.topExpenses.length > 0 && (
+          <StaggerItem>
           <Card className="p-4 lg:p-5">
             <div className="flex items-center gap-2 mb-3">
               <Receipt size={16} className="text-violet-500" />
@@ -469,10 +481,12 @@ export default function Analytics() {
               ))}
             </div>
           </Card>
+          </StaggerItem>
         )}
 
         {/* Pola hari dalam seminggu */}
         {weekdayData.some(d => d.total > 0) && (
+          <StaggerItem>
           <Card className="p-4 lg:p-5">
             <div className="flex items-center gap-2 mb-1">
               <CalendarDays size={16} className="text-violet-500" />
@@ -508,13 +522,16 @@ export default function Analytics() {
               </span>
             </div>
           </Card>
+          </StaggerItem>
         )}
 
         {/* Grafik harian (reuse) */}
-        <SpendingChart month={selectedMonth} />
+        <StaggerItem>
+          <SpendingChart month={selectedMonth} />
+        </StaggerItem>
           </>
         )}
-      </div>
+      </Stagger>
     </PageWrapper>
   )
 }

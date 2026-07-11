@@ -11,6 +11,7 @@ import { SAVINGS_ID } from '../utils/savings'
 import { toTitleCase } from '../utils/text'
 import { evalAmount } from '../utils/math'
 import { AmountInput } from '../components/ui/AmountInput'
+import { Stagger, StaggerItem } from '../components/ui/Stagger'
 
 const NEW = '__new__'
 
@@ -53,13 +54,15 @@ export default function AddIncome() {
 
   return (
     <PageWrapper title="Tambah Pemasukan" backTo="/">
+      <Stagger>
+      <StaggerItem>
       <Card className="p-4 flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
+        <StaggerItem className="flex flex-col gap-1">
           <label className={labelCls}>Nominal Pemasukan</label>
           <AmountInput value={amount} onChange={setAmount} previewColor="emerald" previewPrefix="+ " />
-        </div>
+        </StaggerItem>
 
-        <div className="flex flex-col gap-1">
+        <StaggerItem className="flex flex-col gap-1">
           <label className={labelCls}>Sumber <span className="font-normal text-slate-400 dark:text-slate-500">(opsional)</span></label>
           <input
             className={inputCls}
@@ -69,9 +72,9 @@ export default function AddIncome() {
             onChange={e => setSource(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSave()}
           />
-        </div>
+        </StaggerItem>
 
-        <div className="flex flex-col gap-1">
+        <StaggerItem className="flex flex-col gap-1">
           <label className={labelCls}>Alokasikan ke</label>
           <select
             className={inputCls}
@@ -83,7 +86,7 @@ export default function AddIncome() {
             ))}
             <option value={NEW}>+ Buat kategori baru…</option>
           </select>
-        </div>
+        </StaggerItem>
 
         {target === NEW && (
           <div className="flex flex-col gap-1">
@@ -118,14 +121,18 @@ export default function AddIncome() {
           </div>
         )}
 
-        <Button
-          variant="secondary"
-          onClick={handleSave}
-          className="w-full py-3 text-base flex items-center justify-center gap-2"
-        >
-          <Plus size={18} /> Tambah Pemasukan
-        </Button>
+        <StaggerItem>
+          <Button
+            variant="secondary"
+            onClick={handleSave}
+            className="w-full py-3 text-base flex items-center justify-center gap-2"
+          >
+            <Plus size={18} /> Tambah Pemasukan
+          </Button>
+        </StaggerItem>
       </Card>
+      </StaggerItem>
+      </Stagger>
     </PageWrapper>
   )
 }
