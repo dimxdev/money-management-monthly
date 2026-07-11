@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Trash2, PiggyBank, Wallet } from 'lucide-react'
+import { Plus, Trash2, PiggyBank, Wallet, Copy } from 'lucide-react'
 import { useBudgetContext } from '../context/BudgetContext'
+import { useToast } from '../context/ToastContext'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -38,6 +39,7 @@ const inlineCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-
 
 export default function BudgetSetup() {
   const { months, updateMonth, addMonth } = useBudgetContext()
+  const toast = useToast()
   const navigate = useNavigate()
 
   const now = new Date()
@@ -56,13 +58,7 @@ export default function BudgetSetup() {
   const existingMonth = months.find(m => m.id === monthId) ?? null
   const isEditing     = !!existingMonth
 
-  const init = initFromMonth(existingMonth ?? activeMonth)
-  const [income, setIncome]         = useState(init.income)
-  const [categories, setCategories] = useState(init.categories)
-  const [error, setError]           = useState('')
-  const [showMonthPicker, setShowMonthPicker] = useState(false)
-
-  // Bulan sebelumnya (relatif ke bulan yang sedang dibuat) untuk info sisa saldo
+  // Bulan sebelumnya (relatif ke bulan yang sedang dibuat) untuk carry-over saldo
   const prevMonth = [...months]
     .filter(m => m.id < monthId)
     .sort((a, b) => b.id.localeCompare(a.id))[0] ?? null
@@ -70,20 +66,28 @@ export default function BudgetSetup() {
     ? prevMonth.income - prevMonth.expenses.reduce((s, e) => s + e.amount, 0)
     : 0
 
+  const init = initFromMonth(existingMonth ?? activeMonth)
+  // Bulan baru: sisa saldo bulan lalu otomatis jadi pemasukan awal, tinggal ditambah pemasukan baru
+  const initialIncome = !isEditing && prevRemaining > 0 ? prevRemaining.toString() : init.income
+  const [income, setIncome]         = useState(initialIncome)
+  const [categories, setCategories] = useState(init.categories)
+  const [error, setError]           = useState('')
+  const [showMonthPicker, setShowMonthPicker] = useState(false)
+
   const firstRender = useRef(true)
   useEffect(() => {
     if (firstRender.current) { firstRender.current = false; return }
     const m = months.find(m => m.id === monthId)
     const fresh = initFromMonth(m ?? null)
-    setIncome(fresh.income)
+    // Bulan baru: prefill pemasukan dengan sisa saldo bulan lalu
+    setIncome(!m && prevRemaining > 0 ? prevRemaining.toString() : fresh.income)
     setCategories(fresh.categories)
     setError('')
   }, [monthId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const incomeNum   = evalAmount(income) || 0
   const totalBudget = categories.reduce((sum, c) => sum + (evalAmount(c.budget) || 0), 0)
-  const carryOver   = !isEditing && prevRemaining > 0 ? prevRemaining : 0
-  const savingsBudget = Math.max(0, incomeNum - totalBudget) + carryOver
+  const savingsBudget = Math.max(0, incomeNum - totalBudget)
 
   function addCategory() {
     setCategories(prev => [...prev, { name: '', budget: '' }])
@@ -95,6 +99,25 @@ export default function BudgetSetup() {
 
   function removeCategory(index) {
     setCategories(prev => prev.filter((_, i) => i !== index))
+  }
+
+  // Salin kategori (non-tabungan) + budget dari bulan sebelumnya.
+  function copyFromPrev() {
+    if (!prevMonth) return
+    const hasFilled = categories.some(c => c.name.trim() || String(c.budget).trim())
+    if (hasFilled && !window.confirm(
+      `Ganti kategori yang sedang diisi dengan kategori dari ${prevMonth.name}?`
+    )) return
+
+    const copied = prevMonth.categories
+      .filter(c => !isSavings(c))
+      .map(c => ({ name: c.name, budget: c.budget.toString() }))
+    if (copied.length === 0) {
+      toast?.showToast(`${prevMonth.name} tidak punya kategori untuk disalin.`, 'error')
+      return
+    }
+    setCategories(copied)
+    toast?.showToast(`${copied.length} kategori disalin dari ${prevMonth.name}`, 'success')
   }
 
   function handleSave() {
@@ -188,7 +211,7 @@ export default function BudgetSetup() {
             <p className="text-sm text-emerald-800 dark:text-emerald-300 leading-snug">
               Sisa saldo bulan lalu ({prevMonth.name}) sebesar{' '}
               <span className="font-bold">{formatRupiah(prevRemaining)}</span>
-              {' '}otomatis ditambahkan ke <span className="font-bold">Tabungan</span>.
+              {' '}sudah dimasukkan ke <span className="font-bold">Total Pemasukan</span>. Tinggal tambahkan pemasukan baru (mis. <span className="font-mono">+5000000</span>).
             </p>
           </div>
         )}
@@ -208,6 +231,16 @@ export default function BudgetSetup() {
             </span>
           )}
         </div>
+
+        {/* Salin kategori dari bulan sebelumnya — hanya saat membuat bulan baru */}
+        {!isEditing && prevMonth && (
+          <button
+            onClick={copyFromPrev}
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-2xl border border-dashed border-violet-300 dark:border-violet-700 text-sm font-semibold text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors"
+          >
+            <Copy size={15} /> Salin kategori dari {prevMonth.name}
+          </button>
+        )}
 
         <div className="flex flex-col gap-2">
           {categories.map((cat, i) => (
