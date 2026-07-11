@@ -16,6 +16,9 @@ button, a, [role='button'], select, input, textarea {
 }
 
 /* Sembunyikan scrollbar di layar mobile — scroll tetap berfungsi normal.
+   Scrollbar dokumen di Android (Chrome/Samsung) adalah overlay browser yang
+   tidak bisa di-styling, jadi scrolling dipindah ke #root (elemen dalam)
+   yang scrollbar-nya bisa disembunyikan.
    Desktop (lg+) tetap menampilkan scrollbar karena berguna untuk navigasi. */
 @media (max-width: 1023px) {
   * {
@@ -24,6 +27,16 @@ button, a, [role='button'], select, input, textarea {
   }
   *::-webkit-scrollbar {
     display: none;              /* Chrome, Safari, Android */
+    width: 0;
+    height: 0;
+  }
+  html, body {
+    height: 100%;
+    overflow: hidden;           /* dokumen tidak scroll → overlay bar browser tidak muncul */
+  }
+  #root {
+    height: 100dvh;
+    overflow-y: auto;           /* scroll pindah ke sini, scrollbar-nya disembunyikan */
   }
 }
 

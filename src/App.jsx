@@ -24,11 +24,13 @@ const Settings = lazy(() => import('./pages/Settings'))
 // animasi sampai chunk ini siap, jadi tidak memblokir render awal.
 const loadMotionFeatures = () => import('./motion-features').then(mod => mod.default)
 
-// Reset scroll ke atas tiap pindah halaman (React Router tidak melakukannya otomatis)
+// Reset scroll ke atas tiap pindah halaman (React Router tidak melakukannya otomatis).
+// Di mobile scrolling terjadi di #root (lihat index.css), di desktop di window.
 function ScrollToTop() {
   const { pathname } = useLocation()
   useEffect(() => {
     window.scrollTo(0, 0)
+    document.getElementById('root')?.scrollTo(0, 0)
   }, [pathname])
   return null
 }
