@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Plus, Pencil, Trash2, X, Check, HandCoins, ChevronDown, UserPlus } from 'lucide-react'
+import { Plus, Pencil, Trash2, X, Check, HandCoins, ChevronDown, UserPlus, CheckCircle2, Undo2 } from 'lucide-react'
 import { useStorage } from '../hooks/useStorage'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
@@ -41,18 +41,21 @@ function migrate(data) {
 }
 
 // Saldo bersih: meminjamkan (orang ngutang ke kamu) positif, meminjam (kamu ngutang) negatif.
+// Catatan yang sudah lunas tidak ikut dihitung.
 function netBalance(items = []) {
   return items.reduce((sum, it) => {
+    if (it.settled) return sum
     if (it.debtType === 'lending') return sum + it.amount
     if (it.debtType === 'borrowing') return sum - it.amount
     return sum
   }, 0)
 }
 
-// Total piutang (semua "meminjamkan") & hutang (semua "meminjam") lintas orang.
+// Total piutang (semua "meminjamkan") & hutang (semua "meminjam") lintas orang, kecuali yang lunas.
 function grandTotals(people = []) {
   return people.reduce((acc, p) => {
     for (const it of p.items ?? []) {
+      if (it.settled) continue
       if (it.debtType === 'lending') acc.lending += it.amount
       else if (it.debtType === 'borrowing') acc.borrowing += it.amount
     }
@@ -90,6 +93,13 @@ export default function Notes() {
   const list = Array.isArray(people) ? people : []
   const totals = grandTotals(list)
   const totalNet = totals.lending - totals.borrowing
+
+  // Orang yang saldonya sudah lunas (tidak ada hutang/piutang aktif) ditaruh paling bawah.
+  const sortedList = [...list].sort((a, b) => {
+    const aActive = netBalance(a.items ?? []) !== 0
+    const bActive = netBalance(b.items ?? []) !== 0
+    return aActive === bActive ? 0 : aActive ? -1 : 1
+  })
 
   function toggleExpand(id) {
     setExpanded(prev => {
@@ -193,6 +203,14 @@ export default function Notes() {
       ))
     }
   }
+  // Tandai lunas / batal lunas — item lunas tetap tersimpan tapi tidak dihitung ke saldo.
+  function toggleSettled(personId, itemId) {
+    setPeople(prev => prev.map(p =>
+      p.id === personId
+        ? { ...p, items: p.items.map(it => (it.id === itemId ? { ...it, settled: !it.settled } : it)) }
+        : p
+    ))
+  }
 
   return (
     <PageWrapper title="Hutang / Catatan">
@@ -255,11 +273,16 @@ export default function Notes() {
               </p>
             </div>
           ) : (
-            list.map(person => {
+            sortedList.map(person => {
               const items = person.items ?? []
               const net = netBalance(items)
               const isOpen = expanded.has(person.id)
-              const sorted = [...items].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+              const settledCount = items.filter(it => it.settled).length
+              // Belum lunas di atas (terbaru dulu), lunas dikumpulkan di bawah.
+              const sorted = [...items].sort((a, b) => {
+                if (!!a.settled !== !!b.settled) return a.settled ? 1 : -1
+                return new Date(b.createdAt) - new Date(a.createdAt)
+              })
               return (
                 <Card key={person.id} className="overflow-hidden">
                   {/* Header orang — klik untuk expand */}
@@ -275,7 +298,7 @@ export default function Notes() {
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-slate-800 dark:text-slate-100 truncate">{person.name}</p>
                         <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                          {items.length} catatan
+                          {items.length} catatan{settledCount > 0 && ` · ${settledCount} lunas`}
                         </p>
                       </div>
                       <div className="text-right shrink-0">
@@ -318,25 +341,52 @@ export default function Notes() {
                         </p>
                       ) : (
                         sorted.map(item => (
-                          <div key={item.id} className="flex items-start justify-between gap-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/60 px-3 py-2.5">
+                          <div key={item.id} className={`flex items-start justify-between gap-2 rounded-xl border px-3 py-2.5 transition-colors ${
+                            item.settled
+                              ? 'bg-slate-50 dark:bg-slate-800/40 border-slate-100 dark:border-slate-700/40'
+                              : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700/60'
+                          }`}>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <p className="text-sm font-medium text-slate-800 dark:text-slate-100 break-words">{item.title}</p>
-                                {item.debtType === 'lending' && (
+                                <p className={`text-sm font-medium break-words ${
+                                  item.settled
+                                    ? 'text-slate-400 dark:text-slate-500 line-through'
+                                    : 'text-slate-800 dark:text-slate-100'
+                                }`}>{item.title}</p>
+                                {item.settled ? (
+                                  <span className="shrink-0 inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
+                                    <CheckCircle2 size={10} /> Lunas
+                                  </span>
+                                ) : item.debtType === 'lending' ? (
                                   <span className="shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
                                     Meminjamkan
                                   </span>
-                                )}
-                                {item.debtType === 'borrowing' && (
+                                ) : item.debtType === 'borrowing' ? (
                                   <span className="shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
                                     Meminjam
                                   </span>
-                                )}
+                                ) : null}
                               </div>
                               <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{formatDate(item.createdAt)}</p>
-                              <p className="text-sm font-semibold text-violet-600 dark:text-violet-400 mt-0.5">{formatRupiah(item.amount)}</p>
+                              <p className={`text-sm font-semibold mt-0.5 ${
+                                item.settled
+                                  ? 'text-slate-400 dark:text-slate-500 line-through'
+                                  : 'text-violet-600 dark:text-violet-400'
+                              }`}>{formatRupiah(item.amount)}</p>
                             </div>
                             <div className="flex gap-0.5 shrink-0">
+                              <button
+                                onClick={() => toggleSettled(person.id, item.id)}
+                                className={`transition-colors p-1.5 ${
+                                  item.settled
+                                    ? 'text-emerald-500 dark:text-emerald-400 hover:text-slate-400 dark:hover:text-slate-500'
+                                    : 'text-slate-300 dark:text-slate-600 hover:text-emerald-500 dark:hover:text-emerald-400'
+                                }`}
+                                aria-label={item.settled ? 'Batal lunas' : 'Tandai lunas'}
+                                title={item.settled ? 'Batal lunas' : 'Tandai lunas'}
+                              >
+                                {item.settled ? <Undo2 size={14} /> : <CheckCircle2 size={14} />}
+                              </button>
                               <button
                                 onClick={() => openEditItem(person.id, item)}
                                 className="text-slate-300 dark:text-slate-600 hover:text-violet-500 dark:hover:text-violet-400 transition-colors p-1.5"
