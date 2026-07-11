@@ -13,40 +13,134 @@ import { formatDateTime } from '../utils/date'
 function HistoryList() {
   const { months } = useBudgetContext()
   const navigate = useNavigate()
+  const [query, setQuery] = useState('')
   const sorted = [...months].sort((a, b) => b.id.localeCompare(a.id))
+
+  const q = query.trim().toLowerCase()
+
+  // Pencarian pengeluaran lintas semua bulan (deskripsi atau nama kategori).
+  const results = useMemo(() => {
+    if (!q) return []
+    const out = []
+    for (const month of months) {
+      const catMap = Object.fromEntries((month.categories ?? []).map(c => [c.id, c.name]))
+      for (const e of month.expenses ?? []) {
+        const catName = catMap[e.categoryId] ?? '—'
+        if (`${e.description ?? ''} ${catName}`.toLowerCase().includes(q)) {
+          out.push({ ...e, monthId: month.id, monthName: month.name, catName })
+        }
+      }
+    }
+    return out.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  }, [q, months])
+
+  const totalFound = results.reduce((s, e) => s + e.amount, 0)
 
   return (
     <PageWrapper title="Riwayat">
       <div className="flex flex-col gap-3">
-        {sorted.length === 0 && (
-          <p className="text-center text-slate-400 dark:text-slate-500 py-12 text-sm">
-            Belum ada data bulan
-          </p>
-        )}
-        {sorted.map(month => {
-          const totalSpent = month.expenses.reduce((s, e) => s + e.amount, 0)
-          const remaining = month.income - totalSpent
-          return (
-            <Card
-              key={month.id}
-              className="p-4 cursor-pointer active:bg-slate-50 dark:active:bg-slate-800/60 hover:shadow-md transition-shadow"
-              onClick={() => navigate(`/history/${month.id}`)}
+        {/* Pencarian pengeluaran lintas bulan */}
+        <div className="relative">
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none"
+          />
+          <input
+            type="text"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Cari pengeluaran (semua bulan)…"
+            className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 pl-9 pr-9 py-2.5 text-sm text-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-400"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              aria-label="Hapus pencarian"
+              className="absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-semibold text-slate-800 dark:text-slate-100">{month.name}</p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    Pengeluaran: {formatRupiah(totalSpent)}
-                  </p>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                    Sisa: {formatRupiah(remaining)}
-                  </p>
+              <X size={14} />
+            </button>
+          )}
+        </div>
+
+        {q ? (
+          /* Mode pencarian — hasil lintas bulan */
+          results.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 gap-2 text-slate-300 dark:text-slate-600">
+              <Receipt size={32} strokeWidth={1.2} />
+              <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
+                Tidak ada pengeluaran cocok dengan “{query.trim()}”
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="text-xs text-slate-500 dark:text-slate-400 px-1">
+                {results.length} transaksi · total {formatRupiah(totalFound)}
+              </p>
+              <Card className="p-4">
+                <div className="flex flex-col divide-y divide-slate-50/80 dark:divide-slate-700/50">
+                  {results.map(e => (
+                    <button
+                      key={`${e.monthId}_${e.id}`}
+                      type="button"
+                      onClick={() => navigate(`/history/${e.monthId}/category/${e.categoryId}`)}
+                      className="flex w-full items-center gap-3 py-3 text-left hover:bg-slate-50/70 dark:hover:bg-slate-800/40 -mx-2 px-2 rounded-xl transition-colors"
+                    >
+                      <div className="h-9 w-9 shrink-0 rounded-xl flex items-center justify-center bg-violet-100 dark:bg-violet-900/40">
+                        <ArrowUpRight size={17} className="text-violet-600 dark:text-violet-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate leading-tight">
+                          {e.description || 'Pengeluaran'}
+                        </p>
+                        <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">
+                          {e.catName} · {e.monthName} · {formatDateTime(e.createdAt)}
+                        </p>
+                      </div>
+                      <p className="text-sm font-bold shrink-0 text-slate-700 dark:text-slate-200">
+                        {formatRupiah(e.amount)}
+                      </p>
+                    </button>
+                  ))}
                 </div>
-                <ChevronRight size={18} className="text-slate-400 dark:text-slate-500 shrink-0" />
-              </div>
-            </Card>
+              </Card>
+            </>
           )
-        })}
+        ) : (
+          /* Mode normal — daftar bulan */
+          <>
+            {sorted.length === 0 && (
+              <p className="text-center text-slate-400 dark:text-slate-500 py-12 text-sm">
+                Belum ada data bulan
+              </p>
+            )}
+            {sorted.map(month => {
+              const totalSpent = month.expenses.reduce((s, e) => s + e.amount, 0)
+              const remaining = month.income - totalSpent
+              return (
+                <Card
+                  key={month.id}
+                  className="p-4 cursor-pointer active:bg-slate-50 dark:active:bg-slate-800/60 hover:shadow-md transition-shadow"
+                  onClick={() => navigate(`/history/${month.id}`)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-slate-800 dark:text-slate-100">{month.name}</p>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        Pengeluaran: {formatRupiah(totalSpent)}
+                      </p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                        Sisa: {formatRupiah(remaining)}
+                      </p>
+                    </div>
+                    <ChevronRight size={18} className="text-slate-400 dark:text-slate-500 shrink-0" />
+                  </div>
+                </Card>
+              )
+            })}
+          </>
+        )}
       </div>
     </PageWrapper>
   )

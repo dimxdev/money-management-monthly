@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Pencil, Trash2, Check, X } from 'lucide-react'
+import { Pencil, Trash2, Check, X, Search } from 'lucide-react'
 import { useBudgetContext } from '../context/BudgetContext'
 import { useToast } from '../context/ToastContext'
 import { useBudget } from '../hooks/useBudget'
@@ -33,6 +33,7 @@ export default function CategoryDetail() {
   const [editDesc, setEditDesc] = useState('')
   const [editError, setEditError] = useState('')
   const [deleteId, setDeleteId] = useState(null)
+  const [query, setQuery] = useState('')
 
   const stat = categoryStats.find(c => c.id === id)
 
@@ -44,6 +45,11 @@ export default function CategoryDetail() {
   const expenses = (month?.expenses ?? [])
     .filter(e => e.categoryId === id)
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+  const q = query.trim().toLowerCase()
+  const visible = q
+    ? expenses.filter(e => (e.description ?? '').toLowerCase().includes(q))
+    : expenses
 
   function startEdit(expense) {
     setEditingId(expense.id)
@@ -96,13 +102,44 @@ export default function CategoryDetail() {
         </Card>
 
         <div className="flex flex-col gap-2">
-          {expenses.length === 0 && (
+          {/* Pencarian pengeluaran di kategori ini */}
+          {expenses.length > 0 && (
+            <div className="relative mb-1">
+              <Search
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 pointer-events-none"
+              />
+              <input
+                type="text"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Cari pengeluaran…"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 pl-9 pr-9 py-2.5 text-sm text-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-400"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery('')}
+                  aria-label="Hapus pencarian"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          )}
+
+          {expenses.length === 0 ? (
             <p className="text-center text-slate-400 dark:text-slate-500 py-8 text-sm">
               Belum ada pengeluaran di kategori ini
             </p>
-          )}
+          ) : visible.length === 0 ? (
+            <p className="text-center text-slate-400 dark:text-slate-500 py-8 text-sm">
+              Tidak ada pengeluaran cocok dengan “{query.trim()}”
+            </p>
+          ) : null}
 
-          {expenses.map(exp => (
+          {visible.map(exp => (
             <Card key={exp.id} className="p-4">
               {editingId === exp.id ? (
                 <div className="flex flex-col gap-2">
