@@ -185,14 +185,14 @@ export default function CategoryDetail() {
                     <div className="flex gap-1 ml-2 shrink-0">
                       <button
                         onClick={() => startEdit(exp)}
-                        className="text-slate-300 dark:text-slate-600 hover:text-violet-500 dark:hover:text-violet-400 transition-colors p-1.5"
+                        className="text-slate-300 dark:text-slate-600 hover:text-violet-500 dark:hover:text-violet-400 active:scale-90 transition-all duration-150 p-1.5"
                         aria-label="Edit"
                       >
                         <Pencil size={16} />
                       </button>
                       <button
                         onClick={() => setDeleteId(exp.id)}
-                        className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1.5"
+                        className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 active:scale-90 transition-all duration-150 p-1.5"
                         aria-label="Hapus"
                       >
                         <Trash2 size={16} />

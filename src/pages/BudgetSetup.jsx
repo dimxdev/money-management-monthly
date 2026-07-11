@@ -236,7 +236,7 @@ export default function BudgetSetup() {
         {!isEditing && prevMonth && (
           <button
             onClick={copyFromPrev}
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-2xl border border-dashed border-violet-300 dark:border-violet-700 text-sm font-semibold text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors"
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-2xl border border-dashed border-violet-300 dark:border-violet-700 text-sm font-semibold text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 active:scale-[0.98] transition-all duration-150"
           >
             <Copy size={15} /> Salin kategori dari {prevMonth.name}
           </button>
@@ -262,7 +262,7 @@ export default function BudgetSetup() {
               </div>
               <button
                 onClick={() => removeCategory(i)}
-                className="text-slate-300 dark:text-slate-600 hover:text-red-400 dark:hover:text-red-400 transition-colors p-1 mt-1"
+                className="text-slate-300 dark:text-slate-600 hover:text-red-400 dark:hover:text-red-400 active:scale-90 transition-all duration-150 p-1 mt-1"
                 aria-label="Hapus kategori"
               >
                 <Trash2 size={18} />

@@ -30,7 +30,7 @@ export function ToastProvider({ children }) {
         {otherToasts.map(t => (
           <div
             key={t.id}
-            className="pointer-events-auto flex items-start gap-3 rounded-2xl text-white px-4 py-3 shadow-xl animate-fade-in bg-red-600 shadow-red-900/30"
+            className="pointer-events-auto flex items-start gap-3 rounded-2xl text-white px-4 py-3 shadow-xl animate-fade-in bg-red-600/80 backdrop-blur-xl backdrop-saturate-150 border border-white/25 shadow-red-900/30"
           >
             <AlertTriangle size={18} className="shrink-0 mt-0.5" />
             <p className="flex-1 text-sm font-medium leading-snug">{t.message}</p>
@@ -46,7 +46,7 @@ export function ToastProvider({ children }) {
         {successToasts.map(t => (
           <div
             key={t.id}
-            className="pointer-events-auto flex items-center gap-2 rounded-2xl text-white px-3.5 py-2.5 shadow-xl animate-fade-in bg-violet-600 shadow-violet-900/30 max-w-[16rem]"
+            className="pointer-events-auto flex items-center gap-2 rounded-2xl text-white px-3.5 py-2.5 shadow-xl animate-pop-in bg-violet-600/80 backdrop-blur-xl backdrop-saturate-150 border border-white/25 shadow-violet-900/30 max-w-[16rem]"
           >
             <CheckCircle2 size={18} className="shrink-0" />
             <p className="flex-1 text-sm font-medium leading-snug">{t.message}</p>

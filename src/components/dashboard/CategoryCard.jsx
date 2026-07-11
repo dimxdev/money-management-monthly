@@ -43,7 +43,7 @@ export function CategoryCard({ stat, readOnly = false, monthId }) {
 
   return (
     <Card
-      className={`p-4 ${clickable ? 'cursor-pointer hover:shadow-[0_4px_20px_-2px_rgba(100,223,223,0.15)] dark:hover:shadow-[0_4px_20px_-2px_rgba(100,223,223,0.2)] transition-shadow duration-200' : ''}`}
+      className={`p-4 ${clickable ? 'cursor-pointer hover:shadow-[0_4px_20px_-2px_rgba(100,223,223,0.15)] dark:hover:shadow-[0_4px_20px_-2px_rgba(100,223,223,0.2)] active:scale-[0.98] transition-all duration-200' : ''}`}
       onClick={clickable ? () => navigate(linkTo) : undefined}
     >
       <div className="flex items-center gap-3 mb-3">

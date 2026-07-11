@@ -12,7 +12,7 @@ const NAV_ITEMS = [
 export function BottomNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-20 lg:hidden">
-      <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200/60 dark:border-slate-700/60 pb-[env(safe-area-inset-bottom)]">
+      <div className="bg-white/60 dark:bg-slate-900/55 backdrop-blur-2xl backdrop-saturate-150 border-t border-white/60 dark:border-white/10 shadow-[0_-8px_32px_-12px_rgba(31,38,135,0.18)] dark:shadow-[0_-8px_32px_-12px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom)]">
         <div className="max-w-lg mx-auto flex h-16">
           {NAV_ITEMS.map(({ to, icon: Icon, label, primary, end }) => (
             <NavLink key={to} to={to} end={end} className="flex-1">
@@ -32,7 +32,7 @@ export function BottomNav() {
                   </div>
                 ) : (
                   <div
-                    className={`h-full flex flex-col items-center justify-center gap-0.5 relative transition-colors duration-200 ${
+                    className={`h-full flex flex-col items-center justify-center gap-0.5 relative transition-all duration-200 active:scale-90 ${
                       isActive
                         ? 'text-violet-600 dark:text-violet-400'
                         : 'text-slate-400 dark:text-slate-500'

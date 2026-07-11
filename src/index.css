@@ -5,6 +5,14 @@
 
 * {
   box-sizing: border-box;
+  /* Hilangkan flash abu-abu bawaan saat tap di Android/iOS —
+     biar feedback tekan (active:scale) yang terasa, bukan highlight kotak */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Hilangkan delay dobel-tap → tap terasa instan */
+button, a, [role='button'], select, input, textarea {
+  touch-action: manipulation;
 }
 
 /* ── Palet "Midnight Aurora" (dipakai oleh tailwind.config.js via CSS variable) ──

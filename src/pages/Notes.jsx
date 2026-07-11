@@ -289,7 +289,7 @@ export default function Notes() {
                   <div className="flex items-center gap-2 p-4">
                     <button
                       onClick={() => toggleExpand(person.id)}
-                      className="flex flex-1 items-center gap-3 min-w-0 text-left"
+                      className="flex flex-1 items-center gap-3 min-w-0 text-left active:opacity-60 transition-opacity duration-150"
                     >
                       <ChevronDown
                         size={18}
@@ -317,14 +317,14 @@ export default function Notes() {
                     <div className="flex gap-0.5 shrink-0">
                       <button
                         onClick={() => openEditPerson(person)}
-                        className="text-slate-300 dark:text-slate-600 hover:text-violet-500 dark:hover:text-violet-400 transition-colors p-1.5"
+                        className="text-slate-300 dark:text-slate-600 hover:text-violet-500 dark:hover:text-violet-400 active:scale-90 transition-all duration-150 p-1.5"
                         aria-label="Edit orang"
                       >
                         <Pencil size={15} />
                       </button>
                       <button
                         onClick={() => deletePerson(person.id)}
-                        className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1.5"
+                        className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 active:scale-90 transition-all duration-150 p-1.5"
                         aria-label="Hapus orang"
                       >
                         <Trash2 size={15} />
@@ -377,7 +377,7 @@ export default function Notes() {
                             <div className="flex gap-0.5 shrink-0">
                               <button
                                 onClick={() => toggleSettled(person.id, item.id)}
-                                className={`transition-colors p-1.5 ${
+                                className={`active:scale-90 transition-all duration-150 p-1.5 ${
                                   item.settled
                                     ? 'text-emerald-500 dark:text-emerald-400 hover:text-slate-400 dark:hover:text-slate-500'
                                     : 'text-slate-300 dark:text-slate-600 hover:text-emerald-500 dark:hover:text-emerald-400'
@@ -389,14 +389,14 @@ export default function Notes() {
                               </button>
                               <button
                                 onClick={() => openEditItem(person.id, item)}
-                                className="text-slate-300 dark:text-slate-600 hover:text-violet-500 dark:hover:text-violet-400 transition-colors p-1.5"
+                                className="text-slate-300 dark:text-slate-600 hover:text-violet-500 dark:hover:text-violet-400 active:scale-90 transition-all duration-150 p-1.5"
                                 aria-label="Edit hutang"
                               >
                                 <Pencil size={14} />
                               </button>
                               <button
                                 onClick={() => deleteItem(person.id, item.id)}
-                                className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1.5"
+                                className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 active:scale-90 transition-all duration-150 p-1.5"
                                 aria-label="Hapus hutang"
                               >
                                 <Trash2 size={14} />
@@ -407,7 +407,7 @@ export default function Notes() {
                       )}
                       <button
                         onClick={() => openAddItem(person.id)}
-                        className="mt-1 flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 py-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:border-violet-400 dark:hover:border-violet-500 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+                        className="mt-1 flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 py-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:border-violet-400 dark:hover:border-violet-500 hover:text-violet-600 dark:hover:text-violet-400 active:scale-[0.98] transition-all duration-150"
                       >
                         <Plus size={16} /> Tambah hutang
                       </button>
@@ -435,7 +435,7 @@ export default function Notes() {
           className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-4"
           onClick={() => setPersonModal(false)}
         >
-          <div className="w-full max-w-md" onClick={e => e.stopPropagation()}>
+          <div className="w-full max-w-md animate-pop-in" onClick={e => e.stopPropagation()}>
             <Card className="p-5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <h2 className="font-bold text-slate-900 dark:text-slate-100">
@@ -488,7 +488,7 @@ export default function Notes() {
           className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-4"
           onClick={() => setItemModal(false)}
         >
-          <div className="w-full max-w-md" onClick={e => e.stopPropagation()}>
+          <div className="w-full max-w-md animate-pop-in" onClick={e => e.stopPropagation()}>
             <Card className="p-5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <h2 className="font-bold text-slate-900 dark:text-slate-100">

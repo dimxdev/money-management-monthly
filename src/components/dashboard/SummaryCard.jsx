@@ -34,7 +34,7 @@ export function SummaryCard({ month, totalSpent, remaining, onEdit, onIncomeClic
             {onEdit && (
               <button
                 onClick={onEdit}
-                className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/15 text-white/70 transition-colors hover:bg-white/25 hover:text-white"
+                className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/15 text-white/70 hover:bg-white/25 hover:text-white active:scale-90 transition-all duration-150"
                 aria-label="Edit budget"
               >
                 <SlidersHorizontal size={15} />
@@ -67,7 +67,7 @@ export function SummaryCard({ month, totalSpent, remaining, onEdit, onIncomeClic
           <button
             type="button"
             onClick={onIncomeClick}
-            className="rounded-2xl bg-white/10 px-4 py-3 backdrop-blur-sm text-left transition-colors hover:bg-white/20 active:scale-[0.98]"
+            className="rounded-2xl bg-white/10 px-4 py-3 backdrop-blur-sm text-left hover:bg-white/20 active:scale-[0.97] transition-all duration-150"
           >
             <p className="text-[10px] font-semibold uppercase tracking-wider text-white/50 mb-1">
               Pemasukan ›

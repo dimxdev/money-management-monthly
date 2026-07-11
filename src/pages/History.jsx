@@ -85,7 +85,7 @@ function HistoryList() {
                       key={`${e.monthId}_${e.id}`}
                       type="button"
                       onClick={() => navigate(`/history/${e.monthId}/category/${e.categoryId}`)}
-                      className="flex w-full items-center gap-3 py-3 text-left hover:bg-slate-50/70 dark:hover:bg-slate-800/40 -mx-2 px-2 rounded-xl transition-colors"
+                      className="flex w-full items-center gap-3 py-3 text-left hover:bg-slate-50/70 dark:hover:bg-slate-800/40 active:bg-slate-100/80 dark:active:bg-slate-700/40 active:scale-[0.99] -mx-2 px-2 rounded-xl transition-all duration-150"
                     >
                       <div className="h-9 w-9 shrink-0 rounded-xl flex items-center justify-center bg-violet-100 dark:bg-violet-900/40">
                         <ArrowUpRight size={17} className="text-violet-600 dark:text-violet-400" />
@@ -121,7 +121,7 @@ function HistoryList() {
               return (
                 <Card
                   key={month.id}
-                  className="p-4 cursor-pointer active:bg-slate-50 dark:active:bg-slate-800/60 hover:shadow-md transition-shadow"
+                  className="p-4 cursor-pointer active:scale-[0.98] hover:shadow-md transition-all duration-200"
                   onClick={() => navigate(`/history/${month.id}`)}
                 >
                   <div className="flex items-center justify-between">
@@ -153,7 +153,7 @@ function TransactionRow({ tx, catName, onClick }) {
       type="button"
       onClick={onClick}
       className={`flex w-full items-center gap-3 py-3 text-left ${
-        onClick ? 'cursor-pointer hover:bg-slate-50/70 dark:hover:bg-slate-800/40 -mx-2 px-2 rounded-xl transition-colors' : 'cursor-default'
+        onClick ? 'cursor-pointer hover:bg-slate-50/70 dark:hover:bg-slate-800/40 active:bg-slate-100/80 dark:active:bg-slate-700/40 active:scale-[0.99] -mx-2 px-2 rounded-xl transition-all duration-150' : 'cursor-default'
       }`}
     >
       <div
@@ -292,7 +292,7 @@ function HistoryDetail({ month }) {
                     key={c.id}
                     type="button"
                     onClick={() => setFilterCat(c.id)}
-                    className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                    className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-all duration-150 active:scale-95 ${
                       active
                         ? 'bg-violet-500 text-white shadow-sm shadow-violet-200 dark:shadow-none'
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'

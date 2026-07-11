@@ -13,7 +13,7 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   return (
-    <aside className="hidden lg:flex fixed inset-y-0 left-0 w-60 flex-col bg-white dark:bg-slate-900 border-r border-violet-100/60 dark:border-slate-700/50 z-30">
+    <aside className="hidden lg:flex fixed inset-y-0 left-0 w-60 flex-col bg-white/55 dark:bg-slate-900/45 backdrop-blur-2xl backdrop-saturate-150 border-r border-white/50 dark:border-white/10 z-30">
       {/* Brand */}
       <div className="flex items-center gap-3 px-5 py-5 border-b border-violet-50 dark:border-slate-700/50">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-md shadow-violet-300/50 dark:shadow-violet-900/50">
