@@ -7,6 +7,10 @@ export function DarkModeProvider({ children }) {
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark)
+    // Status bar browser/PWA ikut warna background tema, bukan warna brand
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', isDark ? '#0B1026' : '#EAF7FA')
   }, [isDark])
 
   function toggle() {

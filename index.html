@@ -2,17 +2,20 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
+    <!-- Status bar ikut warna background tema (di-update juga saat toggle tema di app) -->
+    <meta name="theme-color" content="#0B1026" />
     <script>
       ;(function () {
-        if (localStorage.getItem('theme') !== 'light') {
-          document.documentElement.classList.add('dark')
-        }
+        var light = localStorage.getItem('theme') === 'light'
+        if (!light) document.documentElement.classList.add('dark')
+        document
+          .querySelector('meta[name="theme-color"]')
+          .setAttribute('content', light ? '#EAF7FA' : '#0B1026')
       })()
     </script>
     <link rel="icon" type="image/x-icon" href="/money-tracker-favicon.ico" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#8B5CF6" />
     <meta name="description" content="Pencatatan keuangan pribadi bulanan — offline, tanpa iklan." />
     <title>Money Tracker</title>
   </head>

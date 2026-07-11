@@ -13,8 +13,9 @@ export default defineConfig({
         short_name: 'Money Tracker',
         description: 'Pencatatan keuangan pribadi bulanan — offline, tanpa iklan.',
         lang: 'id',
-        theme_color: '#8B5CF6',
-        background_color: '#F8FAFC',
+        // Ikut warna background tema gelap (default app) — bukan warna brand ungu
+        theme_color: '#0B1026',
+        background_color: '#0B1026',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',

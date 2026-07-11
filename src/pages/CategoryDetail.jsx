@@ -134,6 +134,13 @@ export default function CategoryDetail() {
             </div>
           )}
 
+          {/* Ringkasan hasil pencarian — jumlah transaksi & totalnya */}
+          {q && visible.length > 0 && (
+            <p className="text-xs text-slate-500 dark:text-slate-400 px-1">
+              {visible.length} transaksi · total {formatRupiah(visible.reduce((s, e) => s + e.amount, 0))}
+            </p>
+          )}
+
           {expenses.length === 0 ? (
             <p className="text-center text-slate-400 dark:text-slate-500 py-8 text-sm">
               Belum ada pengeluaran di kategori ini
