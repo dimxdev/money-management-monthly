@@ -5,7 +5,7 @@ import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
 import { formatRupiah } from '../utils/currency'
-import { formatDate } from '../utils/date'
+import { formatDate, toDatetimeLocal } from '../utils/date'
 import { toTitleCase } from '../utils/text'
 import { evalAmount } from '../utils/math'
 import { AmountInput } from '../components/ui/AmountInput'
@@ -84,6 +84,7 @@ export default function Notes() {
   const [title, setTitle] = useState('')
   const [amount, setAmount] = useState('')
   const [debtType, setDebtType] = useState(null)
+  const [datetime, setDatetime] = useState('')
   const [itemError, setItemError] = useState('')
 
   const list = Array.isArray(people) ? people : []
@@ -143,6 +144,7 @@ export default function Notes() {
     setTitle('')
     setAmount('')
     setDebtType(null)
+    setDatetime(toDatetimeLocal())
     setItemError('')
     setItemModal(true)
   }
@@ -152,6 +154,7 @@ export default function Notes() {
     setTitle(item.title)
     setAmount(item.amount.toString())
     setDebtType(item.debtType ?? null)
+    setDatetime(item.createdAt ? toDatetimeLocal(item.createdAt) : toDatetimeLocal())
     setItemError('')
     setItemModal(true)
   }
@@ -161,7 +164,14 @@ export default function Notes() {
     const evaluated = evalAmount(amount)
     if (isNaN(evaluated) || evaluated <= 0) return setItemError('Nominal tidak valid.')
 
-    const payload = { title: toTitleCase(title), amount: evaluated, debtType: debtType ?? null }
+    let createdAt = new Date().toISOString()
+    if (datetime) {
+      const d = new Date(datetime)
+      if (isNaN(d.getTime())) return setItemError('Tanggal & waktu tidak valid.')
+      createdAt = d.toISOString()
+    }
+
+    const payload = { title: toTitleCase(title), amount: evaluated, debtType: debtType ?? null, createdAt }
 
     setPeople(prev => prev.map(p => {
       if (p.id !== itemPersonId) return p
@@ -171,7 +181,6 @@ export default function Notes() {
       const newItem = {
         id: `note_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
         ...payload,
-        createdAt: new Date().toISOString(),
       }
       return { ...p, items: [...p.items, newItem] }
     }))
@@ -475,6 +484,16 @@ export default function Notes() {
               </div>
 
               <div className="flex flex-col gap-1">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nominal</label>
+                <AmountInput
+                  value={amount}
+                  onChange={setAmount}
+                  onKeyDown={e => e.key === 'Enter' && saveItem()}
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Judul / Keterangan</label>
                 <input
                   className={inputCls}
@@ -482,16 +501,16 @@ export default function Notes() {
                   placeholder="Contoh: Pinjam buat bensin"
                   value={title}
                   onChange={e => setTitle(e.target.value)}
-                  autoFocus
                 />
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nominal</label>
-                <AmountInput
-                  value={amount}
-                  onChange={setAmount}
-                  onKeyDown={e => e.key === 'Enter' && saveItem()}
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Tanggal & Waktu</label>
+                <input
+                  className={inputCls}
+                  type="datetime-local"
+                  value={datetime}
+                  onChange={e => setDatetime(e.target.value)}
                 />
               </div>
 
