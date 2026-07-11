@@ -321,8 +321,8 @@ function HistoryDetail({ month }) {
             </div>
           )}
 
-          {/* Ringkasan hasil filter/pencarian — jumlah transaksi & totalnya */}
-          {(query.trim() || filterCat !== 'all') && visible.length > 0 && (() => {
+          {/* Ringkasan daftar — jumlah transaksi & totalnya (ikut filter/pencarian aktif) */}
+          {visible.length > 0 && (() => {
             const totalIn = visible.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
             const totalOut = visible.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
             return (
