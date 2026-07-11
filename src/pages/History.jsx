@@ -321,6 +321,19 @@ function HistoryDetail({ month }) {
             </div>
           )}
 
+          {/* Ringkasan hasil filter/pencarian — jumlah transaksi & totalnya */}
+          {(query.trim() || filterCat !== 'all') && visible.length > 0 && (() => {
+            const totalIn = visible.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
+            const totalOut = visible.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
+            return (
+              <p className="text-xs text-slate-500 dark:text-slate-400 px-1">
+                {visible.length} transaksi
+                {totalOut > 0 && <> · total <span className="font-semibold text-slate-700 dark:text-slate-200">{formatRupiah(totalOut)}</span></>}
+                {totalIn > 0 && <> · masuk <span className="font-semibold text-emerald-600 dark:text-emerald-400">{formatRupiah(totalIn)}</span></>}
+              </p>
+            )
+          })()}
+
           {/* Daftar transaksi */}
           <Card className="p-4">
             {visible.length === 0 ? (
