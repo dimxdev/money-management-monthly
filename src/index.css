@@ -15,6 +15,18 @@ button, a, [role='button'], select, input, textarea {
   touch-action: manipulation;
 }
 
+/* Sembunyikan scrollbar di layar mobile — scroll tetap berfungsi normal.
+   Desktop (lg+) tetap menampilkan scrollbar karena berguna untuk navigasi. */
+@media (max-width: 1023px) {
+  * {
+    scrollbar-width: none;      /* Firefox */
+    -ms-overflow-style: none;   /* IE/Edge lama */
+  }
+  *::-webkit-scrollbar {
+    display: none;              /* Chrome, Safari, Android */
+  }
+}
+
 /* ── Palet "Midnight Aurora" (dipakai oleh tailwind.config.js via CSS variable) ──
    Skala `slate` (netral) & `violet` (accent) diarahkan ke variabel ini.
    Tiap shade punya nilai berbeda di light vs dark, jadi kontras tetap aman

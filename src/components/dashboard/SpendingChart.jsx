@@ -1,9 +1,14 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
+import { m as M, AnimatePresence } from 'motion/react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { BarChart2, X } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { useDarkMode } from '../../hooks/useDarkMode'
 import { formatRupiah } from '../../utils/currency'
+
+// Spring khusus bottom sheet — lembut & mengambang, bukan menyentak
+const sheetSpring = { type: 'spring', stiffness: 170, damping: 22, mass: 1 }
 
 function buildDailyData(month) {
   if (!month) return []
@@ -90,69 +95,80 @@ function TooltipContent({ active, payload }) {
   )
 }
 
-// Detail penuh — muncul saat bar diklik, tetap terbuka & bisa di-scroll
-function DetailModal({ data, isDark, onClose }) {
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+// Detail penuh — bottom sheet: meluncur naik dari bawah menutupi halaman.
+// Dirender lewat portal ke <body> agar tidak terkurung containing block
+// dari Card glass (backdrop-filter membuat fixed relatif ke Card).
+function DetailSheet({ data, isDark, onClose }) {
+  return createPortal(
+    <M.div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm p-4 pb-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
       onClick={onClose}
     >
-      <div
+      <M.div
         className={`w-full max-w-sm rounded-3xl border shadow-2xl ${
-          isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-violet-100'
-        }`}
+          isDark ? 'bg-slate-900/90 border-slate-700' : 'bg-white/90 border-violet-100'
+        } backdrop-blur-2xl backdrop-saturate-150`}
+        initial={{ y: '60%', opacity: 0.5 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: '50%', opacity: 0, transition: { duration: 0.3, ease: 'easeIn' } }}
+        transition={sheetSpring}
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between p-5 pb-3">
-          <div>
-            <p className={`text-[11px] font-bold uppercase tracking-widest mb-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-              Tanggal {data.day}
-            </p>
-            <p className="text-2xl font-black text-violet-500 dark:text-violet-400">
-              {formatRupiah(data.total)}
-            </p>
-            <p className={`text-[11px] mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-              {data.expenses.length} transaksi
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors ${
-              isDark ? 'bg-slate-800 text-slate-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-            }`}
-            aria-label="Tutup"
-          >
-            <X size={16} />
-          </button>
+      <div className="flex items-start justify-between p-5 pb-3">
+        <div>
+          <p className={`text-[11px] font-bold uppercase tracking-widest mb-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+            Tanggal {data.day}
+          </p>
+          <p className="text-2xl font-black text-violet-500 dark:text-violet-400">
+            {formatRupiah(data.total)}
+          </p>
+          <p className={`text-[11px] mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+            {data.expenses.length} transaksi
+          </p>
         </div>
-        <div className="px-5 pb-5 max-h-[60vh] overflow-y-auto">
-          {/* Ringkasan per kategori */}
-          {(() => {
-            const byCategory = {}
-            data.expenses.forEach(exp => {
-              const key = exp.categoryId
-              if (!byCategory[key]) byCategory[key] = { name: exp.cat?.name ?? '?', total: 0 }
-              byCategory[key].total += exp.amount
-            })
-            const cats = Object.values(byCategory)
-            return (
-              <div className={`flex flex-wrap gap-2 mb-4 pb-4 border-b ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
-                {cats.map((c, i) => (
-                  <div key={i} className={`flex items-center gap-1.5 rounded-full px-3 py-1 ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
-                    <span className={`text-[10px] font-black w-4 h-4 rounded-md flex items-center justify-center shrink-0 ${isDark ? 'bg-violet-900/60 text-violet-400' : 'bg-violet-100 text-violet-600'}`}>
-                      {c.name.charAt(0).toUpperCase()}
-                    </span>
-                    <span className={`text-[11px] font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{c.name}</span>
-                    <span className={`text-[11px] font-bold ${isDark ? 'text-violet-400' : 'text-violet-500'}`}>{formatRupiah(c.total)}</span>
-                  </div>
-                ))}
-              </div>
-            )
-          })()}
-          <ExpenseRows expenses={data.expenses} isDark={isDark} />
-        </div>
+        <button
+          onClick={onClose}
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl active:scale-90 transition-all duration-150 ${
+            isDark ? 'bg-slate-800 text-slate-400 hover:bg-slate-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+          }`}
+          aria-label="Tutup"
+        >
+          <X size={16} />
+        </button>
       </div>
-    </div>
+      <div className="px-5 pb-5 max-h-[60vh] overflow-y-auto">
+        {/* Ringkasan per kategori */}
+        {(() => {
+          const byCategory = {}
+          data.expenses.forEach(exp => {
+            const key = exp.categoryId
+            if (!byCategory[key]) byCategory[key] = { name: exp.cat?.name ?? '?', total: 0 }
+            byCategory[key].total += exp.amount
+          })
+          const cats = Object.values(byCategory)
+          return (
+            <div className={`flex flex-wrap gap-2 mb-4 pb-4 border-b ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+              {cats.map((c, i) => (
+                <div key={i} className={`flex items-center gap-1.5 rounded-full px-3 py-1 ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
+                  <span className={`text-[10px] font-black w-4 h-4 rounded-md flex items-center justify-center shrink-0 ${isDark ? 'bg-violet-900/60 text-violet-400' : 'bg-violet-100 text-violet-600'}`}>
+                    {c.name.charAt(0).toUpperCase()}
+                  </span>
+                  <span className={`text-[11px] font-semibold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{c.name}</span>
+                  <span className={`text-[11px] font-bold ${isDark ? 'text-violet-400' : 'text-violet-500'}`}>{formatRupiah(c.total)}</span>
+                </div>
+              ))}
+            </div>
+          )
+        })()}
+        <ExpenseRows expenses={data.expenses} isDark={isDark} />
+      </div>
+      </M.div>
+    </M.div>,
+    document.body
   )
 }
 
@@ -252,9 +268,16 @@ export function SpendingChart({ month }) {
         </div>
       )}
 
-      {selected && (
-        <DetailModal data={selected} isDark={isDark} onClose={() => setSelected(null)} />
-      )}
+      <AnimatePresence>
+        {selected && (
+          <DetailSheet
+            key="chart-detail"
+            data={selected}
+            isDark={isDark}
+            onClose={() => setSelected(null)}
+          />
+        )}
+      </AnimatePresence>
     </Card>
   )
 }
