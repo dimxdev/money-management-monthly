@@ -11,6 +11,7 @@ import { formatRupiah } from '../utils/currency'
 import { formatDateTime } from '../utils/date'
 import { spring } from '../utils/motion'
 import { Stagger, StaggerItem } from '../components/ui/Stagger'
+import { SwipeRow } from '../components/ui/SwipeRow'
 
 export default function IncomeHistory() {
   const { monthId } = useParams()
@@ -88,6 +89,20 @@ export default function IncomeHistory() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                 >
+                <SwipeRow
+                  disabled={readOnly}
+                  actionWidth={66}
+                  actions={
+                    <button
+                      onClick={() => setDeleteTarget(inc)}
+                      className="flex h-[calc(100%-10px)] w-14 flex-col items-center justify-center gap-1 rounded-2xl bg-red-500 text-white shadow-md shadow-red-300/40 dark:shadow-red-900/40 active:scale-95 transition-transform"
+                      aria-label="Hapus pemasukan"
+                    >
+                      <Trash2 size={16} />
+                      <span className="text-[10px] font-bold">Hapus</span>
+                    </button>
+                  }
+                >
                 <Card className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="h-9 w-9 shrink-0 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
@@ -115,6 +130,7 @@ export default function IncomeHistory() {
                     )}
                   </div>
                 </Card>
+                </SwipeRow>
                 </M.div>
               )
             })}

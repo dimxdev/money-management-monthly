@@ -13,6 +13,7 @@ import { evalAmount } from '../utils/math'
 import { spring, modalSpring } from '../utils/motion'
 import { AmountInput } from '../components/ui/AmountInput'
 import { Stagger, StaggerItem } from '../components/ui/Stagger'
+import { SwipeRow } from '../components/ui/SwipeRow'
 
 const STORAGE_KEY = 'money-tracker-notes'
 const inputCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-400 dark:placeholder:text-slate-600 dark:focus:bg-slate-700'
@@ -375,7 +376,41 @@ export default function Notes() {
                             initial={{ opacity: 0, y: -8 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            className={`flex items-start justify-between gap-2 rounded-xl border px-3 py-2.5 transition-colors ${
+                          >
+                          <SwipeRow
+                            actionWidth={164}
+                            actions={
+                              <>
+                                <button
+                                  onClick={() => toggleSettled(person.id, item.id)}
+                                  className={`flex h-[calc(100%-8px)] w-12 flex-col items-center justify-center gap-0.5 rounded-xl text-white active:scale-95 transition-transform ${
+                                    item.settled ? 'bg-slate-400 dark:bg-slate-600' : 'bg-emerald-500'
+                                  }`}
+                                  aria-label={item.settled ? 'Batal lunas' : 'Tandai lunas'}
+                                >
+                                  {item.settled ? <Undo2 size={15} /> : <CheckCircle2 size={15} />}
+                                  <span className="text-[9px] font-bold">{item.settled ? 'Batal' : 'Lunas'}</span>
+                                </button>
+                                <button
+                                  onClick={() => openEditItem(person.id, item)}
+                                  className="flex h-[calc(100%-8px)] w-12 flex-col items-center justify-center gap-0.5 rounded-xl bg-violet-500 text-white active:scale-95 transition-transform"
+                                  aria-label="Edit hutang"
+                                >
+                                  <Pencil size={15} />
+                                  <span className="text-[9px] font-bold">Edit</span>
+                                </button>
+                                <button
+                                  onClick={() => deleteItem(person.id, item.id)}
+                                  className="flex h-[calc(100%-8px)] w-12 flex-col items-center justify-center gap-0.5 rounded-xl bg-red-500 text-white active:scale-95 transition-transform"
+                                  aria-label="Hapus hutang"
+                                >
+                                  <Trash2 size={15} />
+                                  <span className="text-[9px] font-bold">Hapus</span>
+                                </button>
+                              </>
+                            }
+                          >
+                          <div className={`flex items-start justify-between gap-2 rounded-xl border px-3 py-2.5 transition-colors ${
                             item.settled
                               ? 'bg-slate-50 dark:bg-slate-800/40 border-slate-100 dark:border-slate-700/40'
                               : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700/60'
@@ -436,6 +471,8 @@ export default function Notes() {
                                 <Trash2 size={14} />
                               </button>
                             </div>
+                          </div>
+                          </SwipeRow>
                           </M.div>
                         ))}
                         </AnimatePresence>

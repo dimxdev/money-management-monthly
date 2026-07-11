@@ -17,6 +17,7 @@ import { evalAmount } from '../utils/math'
 import { spring } from '../utils/motion'
 import { AmountInput } from '../components/ui/AmountInput'
 import { Stagger, StaggerItem } from '../components/ui/Stagger'
+import { SwipeRow } from '../components/ui/SwipeRow'
 
 const editInputCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-3 py-2 text-sm text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-400 dark:placeholder:text-slate-600'
 
@@ -161,6 +162,29 @@ export default function CategoryDetail() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
             >
+            <SwipeRow
+              disabled={readOnly || editingId === exp.id}
+              actions={
+                <>
+                  <button
+                    onClick={() => startEdit(exp)}
+                    className="flex h-[calc(100%-10px)] w-14 flex-col items-center justify-center gap-1 rounded-2xl bg-violet-500 text-white shadow-md shadow-violet-300/40 dark:shadow-violet-900/40 active:scale-95 transition-transform"
+                    aria-label="Edit"
+                  >
+                    <Pencil size={16} />
+                    <span className="text-[10px] font-bold">Edit</span>
+                  </button>
+                  <button
+                    onClick={() => setDeleteId(exp.id)}
+                    className="flex h-[calc(100%-10px)] w-14 flex-col items-center justify-center gap-1 rounded-2xl bg-red-500 text-white shadow-md shadow-red-300/40 dark:shadow-red-900/40 active:scale-95 transition-transform"
+                    aria-label="Hapus"
+                  >
+                    <Trash2 size={16} />
+                    <span className="text-[10px] font-bold">Hapus</span>
+                  </button>
+                </>
+              }
+            >
             <Card className="p-4">
               {editingId === exp.id ? (
                 <div className="flex flex-col gap-2">
@@ -223,6 +247,7 @@ export default function CategoryDetail() {
                 </div>
               )}
             </Card>
+            </SwipeRow>
             </M.div>
           ))}
           </AnimatePresence>
