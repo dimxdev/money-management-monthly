@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import { m as M, useMotionValue, useTransform, useAnimationControls } from 'motion/react'
 
 // Baris yang bisa digeser ke kiri untuk memunculkan tombol aksi (ala iOS).
@@ -6,6 +6,8 @@ import { m as M, useMotionValue, useTransform, useAnimationControls } from 'moti
 // - Aksi disembunyikan saat tertutup (opacity 0) supaya tidak mengintip
 //   dari balik Card glass yang translusen.
 // - touchAction pan-y: scroll vertikal halaman tetap normal.
+// - Menekan salah satu tombol aksi otomatis menutup geseran; begitu juga saat
+//   baris dinonaktifkan (mis. sedang diedit inline), posisi geser di-reset.
 export function SwipeRow({ children, actions, actionWidth = 128, disabled = false }) {
   const x = useMotionValue(0)
   const controls = useAnimationControls()
@@ -20,6 +22,14 @@ export function SwipeRow({ children, actions, actionWidth = 128, disabled = fals
     })
   }
 
+  // Reset posisi begitu baris dinonaktifkan → saat aktif lagi tidak "terbuka" lagi.
+  useEffect(() => {
+    if (disabled) {
+      isOpen.current = false
+      x.set(0)
+    }
+  }, [disabled, x])
+
   if (disabled) return <div>{children}</div>
 
   return (
@@ -27,6 +37,7 @@ export function SwipeRow({ children, actions, actionWidth = 128, disabled = fals
       <M.div
         style={{ opacity: actionsOpacity, width: actionWidth }}
         className="absolute inset-y-0 right-0 flex items-center justify-end gap-2 pr-0.5"
+        onClick={() => snap(false)}
         aria-hidden
       >
         {actions}

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { m as M, AnimatePresence } from 'motion/react'
 import { Plus, Pencil, Trash2, X, Check, HandCoins, ChevronDown, UserPlus, CheckCircle2, Undo2 } from 'lucide-react'
 import { useStorage } from '../hooks/useStorage'
+import { useToast } from '../context/ToastContext'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
 import { Button } from '../components/ui/Button'
@@ -70,6 +71,7 @@ function grandTotals(people = []) {
 
 export default function Notes() {
   const [people, setPeople] = useStorage(STORAGE_KEY, [])
+  const toast = useToast()
 
   // Migrasi sekali saat mount bila masih format lama.
   useEffect(() => {
@@ -188,17 +190,30 @@ export default function Notes() {
 
     const payload = { title: toTitleCase(title), amount: evaluated, debtType: debtType ?? null, createdAt }
 
-    setPeople(prev => prev.map(p => {
-      if (p.id !== itemPersonId) return p
-      if (itemEditId) {
-        return { ...p, items: p.items.map(it => (it.id === itemEditId ? { ...it, ...payload } : it)) }
-      }
-      const newItem = {
-        id: `note_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-        ...payload,
-      }
-      return { ...p, items: [...p.items, newItem] }
-    }))
+    // Saat edit: cek apakah benar-benar ada perubahan (biar toast tidak muncul sia-sia)
+    const original = itemEditId
+      ? list.find(p => p.id === itemPersonId)?.items.find(it => it.id === itemEditId)
+      : null
+    const changed = !itemEditId || !original ||
+      original.title !== payload.title ||
+      original.amount !== payload.amount ||
+      (original.debtType ?? null) !== payload.debtType ||
+      original.createdAt !== payload.createdAt
+
+    if (changed) {
+      setPeople(prev => prev.map(p => {
+        if (p.id !== itemPersonId) return p
+        if (itemEditId) {
+          return { ...p, items: p.items.map(it => (it.id === itemEditId ? { ...it, ...payload } : it)) }
+        }
+        const newItem = {
+          id: `note_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+          ...payload,
+        }
+        return { ...p, items: [...p.items, newItem] }
+      }))
+      toast?.showToast(itemEditId ? 'Catatan berhasil diedit' : 'Catatan hutang ditambahkan', 'success')
+    }
     setItemModal(false)
   }
   function deleteItem(personId, itemId) {

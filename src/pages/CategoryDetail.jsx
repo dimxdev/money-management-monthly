@@ -74,11 +74,13 @@ export default function CategoryDetail() {
     if (evaluated > maxAllowed) {
       return setEditError(`Nominal melebihi sisa budget kategori ini (maks. ${formatRupiah(maxAllowed)}).`)
     }
-    editExpense(activeMonth.id, editingId, {
-      amount: evaluated,
-      description: toTitleCase(editDesc),
-    })
+    const newDesc = toTitleCase(editDesc)
+    const changed = !original || original.amount !== evaluated || original.description !== newDesc
+    if (changed) {
+      editExpense(activeMonth.id, editingId, { amount: evaluated, description: newDesc })
+    }
     setEditingId(null)
+    if (changed) toast?.showToast('Pengeluaran berhasil diedit', 'success')
   }
 
   function confirmDelete() {
