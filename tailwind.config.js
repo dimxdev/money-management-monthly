@@ -38,10 +38,16 @@ export default {
           from: { opacity: '0', transform: 'scale(0.94) translateY(14px)' },
           to:   { opacity: '1', transform: 'scale(1) translateY(0)' },
         },
+        // Logo "bernapas" di loading screen
+        breathe: {
+          '0%, 100%': { transform: 'scale(1)', opacity: '0.85' },
+          '50%':      { transform: 'scale(1.06)', opacity: '1' },
+        },
       },
       animation: {
         'fade-in': 'fade-in 0.2s ease-out',
         'pop-in': 'pop-in 0.32s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        'breathe': 'breathe 1.6s ease-in-out infinite',
       },
     },
   },

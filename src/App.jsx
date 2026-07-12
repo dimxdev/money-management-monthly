@@ -37,8 +37,13 @@ function ScrollToTop() {
 
 function PageLoader() {
   return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="h-8 w-8 rounded-full border-2 border-slate-200 border-t-violet-500 animate-spin" />
+    <div className="flex flex-col items-center justify-center min-h-[70vh] gap-5">
+      <img
+        src="/logo.png"
+        alt="Money Tracker"
+        className="h-20 w-20 rounded-3xl shadow-lg shadow-violet-200/50 dark:shadow-violet-900/40 animate-breathe"
+      />
+      <div className="h-6 w-6 rounded-full border-2 border-slate-200 dark:border-slate-700 border-t-violet-500 dark:border-t-violet-400 animate-spin" />
     </div>
   )
 }

@@ -14,13 +14,60 @@
       })()
     </script>
     <link rel="icon" type="image/x-icon" href="/money-tracker-favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="description" content="Pencatatan keuangan pribadi bulanan — offline, tanpa iklan." />
-    <title>Money Tracker</title>
+    <meta name="description" content="Catat keuangan bulanan kamu dengan mudah & rapi — offline, tanpa iklan, gratis." />
+    <title>Money Tracker — Catat Keuangan Bulanan</title>
+
+    <!-- Open Graph (WhatsApp, Facebook, LinkedIn, dll) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Money Tracker" />
+    <meta property="og:title" content="Money Tracker — Catat Keuangan Bulanan" />
+    <meta property="og:description" content="Catat keuangan bulanan kamu dengan mudah & rapi. Offline, tanpa iklan, gratis." />
+    <meta property="og:url" content="https://money-management-monthly.vercel.app/" />
+    <meta property="og:image" content="https://money-management-monthly.vercel.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Money Tracker" />
+    <meta property="og:locale" content="id_ID" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Money Tracker — Catat Keuangan Bulanan" />
+    <meta name="twitter:description" content="Catat keuangan bulanan kamu dengan mudah & rapi. Offline, tanpa iklan, gratis." />
+    <meta name="twitter:image" content="https://money-management-monthly.vercel.app/og-image.png" />
+    <!-- Splash cold-start: tampil sebelum React mount, otomatis hilang saat app siap -->
+    <style>
+      #app-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #eaf7fa;
+      }
+      html.dark #app-splash { background: #0b1026; }
+      #app-splash img {
+        width: 96px;
+        height: 96px;
+        border-radius: 24px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+        animation: splashBreathe 1.6s ease-in-out infinite;
+      }
+      @keyframes splashBreathe {
+        0%, 100% { transform: scale(1); opacity: 0.85; }
+        50% { transform: scale(1.06); opacity: 1; }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="app-splash">
+        <img src="/logo.png" alt="Money Tracker" width="96" height="96" />
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
