@@ -82,6 +82,44 @@ export function BudgetProvider({ children }) {
     }))
   }, [setData])
 
+  // Edit catatan pemasukan sambil menjaga invariant income == total budget.
+  // Nominal berubah  → income & budget kategori disesuaikan sebesar selisihnya.
+  // Kategori berubah → nominal lama ditarik dari kategori lama, nominal baru masuk ke kategori baru.
+  // updates: { amount?, description?, categoryId? }
+  const editIncome = useCallback((monthId, incomeId, updates) => {
+    setData(prev => ({
+      months: prev.months.map(m => {
+        if (m.id !== monthId) return m
+        const record = (m.incomes ?? []).find(i => i.id === incomeId)
+        if (!record) return m
+
+        const nextAmount = updates.amount ?? record.amount
+        const nextCatId = updates.categoryId ?? record.categoryId
+        const delta = nextAmount - record.amount
+
+        let categories = m.categories
+        if (nextCatId !== record.categoryId) {
+          categories = categories.map(c => {
+            if (c.id === record.categoryId) return { ...c, budget: Math.max(0, c.budget - record.amount) }
+            if (c.id === nextCatId) return { ...c, budget: c.budget + nextAmount }
+            return c
+          })
+        } else if (delta !== 0) {
+          categories = categories.map(c =>
+            c.id === nextCatId ? { ...c, budget: Math.max(0, c.budget + delta) } : c
+          )
+        }
+
+        return {
+          ...m,
+          income: Math.max(0, m.income + delta),
+          categories,
+          incomes: m.incomes.map(i => (i.id === incomeId ? { ...i, ...updates } : i)),
+        }
+      }),
+    }))
+  }, [setData])
+
   // Hapus catatan pemasukan — kebalikan addIncome:
   // income -= amount, budget kategori target -= amount (invariant income == total budget terjaga).
   // Budget di-clamp ke 0 untuk jaga-jaga bila budget kategori sudah diubah manual lewat Setup.
@@ -191,6 +229,7 @@ export function BudgetProvider({ children }) {
       addMonth,
       updateMonth,
       addIncome,
+      editIncome,
       deleteIncome,
       addExpense,
       editExpense,

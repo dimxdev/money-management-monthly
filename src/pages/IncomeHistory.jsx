@@ -1,24 +1,74 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { m as M, AnimatePresence } from 'motion/react'
-import { Wallet, ArrowDownLeft, Trash2 } from 'lucide-react'
+import { Wallet, ArrowDownLeft, Trash2, Pencil, Check, X } from 'lucide-react'
 import { useBudgetContext } from '../context/BudgetContext'
 import { useToast } from '../context/ToastContext'
 import { PageWrapper } from '../components/layout/PageWrapper'
 import { Card } from '../components/ui/Card'
+import { Button } from '../components/ui/Button'
+import { AmountInput } from '../components/ui/AmountInput'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { formatRupiah } from '../utils/currency'
 import { formatDateTime } from '../utils/date'
-import { spring } from '../utils/motion'
+import { toTitleCase } from '../utils/text'
+import { evalAmount } from '../utils/math'
+import { spring, modalSpring } from '../utils/motion'
 import { Stagger, StaggerItem } from '../components/ui/Stagger'
 import { SwipeRow } from '../components/ui/SwipeRow'
+
+const labelCls = 'text-sm font-medium text-slate-700 dark:text-slate-300'
+const inputCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-400 dark:placeholder:text-slate-600 dark:focus:bg-slate-700'
 
 export default function IncomeHistory() {
   const { monthId } = useParams()
   const navigate = useNavigate()
-  const { activeMonth, months, deleteIncome } = useBudgetContext()
+  const { activeMonth, months, editIncome, deleteIncome } = useBudgetContext()
   const toast = useToast()
   const [deleteTarget, setDeleteTarget] = useState(null)
+
+  // Modal edit pemasukan
+  const [editTarget, setEditTarget] = useState(null)
+  const [editAmount, setEditAmount] = useState('')
+  const [editDesc, setEditDesc] = useState('')
+  const [editCat, setEditCat] = useState('')
+  const [editError, setEditError] = useState('')
+
+  function openEdit(inc) {
+    setEditTarget(inc)
+    setEditAmount(inc.amount.toString())
+    setEditDesc(inc.description ?? '')
+    setEditCat(inc.categoryId ?? '')
+    setEditError('')
+  }
+
+  function closeEdit() {
+    setEditTarget(null)
+    setEditError('')
+  }
+
+  function saveEdit() {
+    setEditError('')
+    const evaluated = evalAmount(editAmount)
+    if (isNaN(evaluated) || evaluated <= 0) return setEditError('Nominal tidak valid.')
+    if (!editCat) return setEditError('Pilih kategori alokasi.')
+
+    const desc = toTitleCase(editDesc)
+    const changed =
+      evaluated !== editTarget.amount ||
+      desc !== (editTarget.description ?? '') ||
+      editCat !== editTarget.categoryId
+
+    if (changed) {
+      editIncome(month.id, editTarget.id, {
+        amount: evaluated,
+        description: desc,
+        categoryId: editCat,
+      })
+      toast?.showToast('Pemasukan berhasil diedit', 'success')
+    }
+    closeEdit()
+  }
 
   // Mode riwayat: lihat pemasukan bulan lama (read-only)
   const readOnly = !!monthId
@@ -91,16 +141,26 @@ export default function IncomeHistory() {
                 >
                 <SwipeRow
                   disabled={readOnly}
-                  actionWidth={66}
+                  actionWidth={128}
                   actions={
-                    <button
-                      onClick={() => setDeleteTarget(inc)}
-                      className="flex h-[calc(100%-10px)] w-14 flex-col items-center justify-center gap-1 rounded-2xl bg-red-500 text-white shadow-md shadow-red-300/40 dark:shadow-red-900/40 active:scale-95 transition-transform"
-                      aria-label="Hapus pemasukan"
-                    >
-                      <Trash2 size={16} />
-                      <span className="text-[10px] font-bold">Hapus</span>
-                    </button>
+                    <>
+                      <button
+                        onClick={() => openEdit(inc)}
+                        className="flex h-[calc(100%-10px)] w-14 flex-col items-center justify-center gap-1 rounded-2xl bg-violet-500 text-white shadow-md shadow-violet-300/40 dark:shadow-violet-900/40 active:scale-95 transition-transform"
+                        aria-label="Edit pemasukan"
+                      >
+                        <Pencil size={16} />
+                        <span className="text-[10px] font-bold">Edit</span>
+                      </button>
+                      <button
+                        onClick={() => setDeleteTarget(inc)}
+                        className="flex h-[calc(100%-10px)] w-14 flex-col items-center justify-center gap-1 rounded-2xl bg-red-500 text-white shadow-md shadow-red-300/40 dark:shadow-red-900/40 active:scale-95 transition-transform"
+                        aria-label="Hapus pemasukan"
+                      >
+                        <Trash2 size={16} />
+                        <span className="text-[10px] font-bold">Hapus</span>
+                      </button>
+                    </>
                   }
                 >
                 <Card className="p-4">
@@ -120,13 +180,22 @@ export default function IncomeHistory() {
                       + {formatRupiah(inc.amount)}
                     </p>
                     {!readOnly && (
-                      <button
-                        onClick={() => setDeleteTarget(inc)}
-                        className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1.5 shrink-0"
-                        aria-label="Hapus pemasukan"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      <div className="flex gap-0.5 shrink-0">
+                        <button
+                          onClick={() => openEdit(inc)}
+                          className="text-slate-300 dark:text-slate-600 hover:text-violet-500 dark:hover:text-violet-400 active:scale-90 transition-all duration-150 p-1.5"
+                          aria-label="Edit pemasukan"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          onClick={() => setDeleteTarget(inc)}
+                          className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 active:scale-90 transition-all duration-150 p-1.5"
+                          aria-label="Hapus pemasukan"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     )}
                   </div>
                 </Card>
@@ -138,6 +207,105 @@ export default function IncomeHistory() {
           </StaggerItem>
         )}
       </Stagger>
+
+      {/* Modal edit pemasukan */}
+      <AnimatePresence>
+        {editTarget && (
+          <M.div
+            className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            onClick={closeEdit}
+          >
+            <M.div
+              className="w-full max-w-md"
+              initial={{ opacity: 0, scale: 0.94, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 8 }}
+              transition={modalSpring}
+              onClick={e => e.stopPropagation()}
+            >
+              <Card className="p-5 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-bold text-slate-900 dark:text-slate-100">Edit Pemasukan</h2>
+                  <button
+                    onClick={closeEdit}
+                    className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 active:scale-90 transition-all duration-150 p-1"
+                    aria-label="Tutup"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className={labelCls}>Nominal</label>
+                  <AmountInput
+                    value={editAmount}
+                    onChange={setEditAmount}
+                    previewColor="emerald"
+                    previewPrefix="+ "
+                    autoFocus
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className={labelCls}>
+                    Sumber <span className="font-normal text-slate-400 dark:text-slate-500">(opsional)</span>
+                  </label>
+                  <input
+                    className={inputCls}
+                    type="text"
+                    placeholder="Contoh: Gaji, Bonus, THR"
+                    value={editDesc}
+                    onChange={e => setEditDesc(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && saveEdit()}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className={labelCls}>Alokasikan ke</label>
+                  <select
+                    className={inputCls}
+                    value={editCat}
+                    onChange={e => setEditCat(e.target.value)}
+                  >
+                    {(month.categories ?? []).map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500 pl-1 leading-relaxed">
+                    Mengubah nominal atau kategori otomatis menyesuaikan total pemasukan &amp; budget kategori terkait.
+                  </p>
+                </div>
+
+                {editError && (
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/40 rounded-xl px-4 py-3">
+                    <p className="text-sm text-red-600 dark:text-red-400">{editError}</p>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    onClick={closeEdit}
+                    className="flex-1 py-3 flex items-center justify-center gap-1"
+                  >
+                    <X size={16} /> Batal
+                  </Button>
+                  <Button
+                    onClick={saveEdit}
+                    className="flex-1 py-3 flex items-center justify-center gap-1"
+                  >
+                    <Check size={16} /> Simpan
+                  </Button>
+                </div>
+              </Card>
+            </M.div>
+          </M.div>
+        )}
+      </AnimatePresence>
 
       <ConfirmDialog
         open={!!deleteTarget}

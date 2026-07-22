@@ -12,6 +12,7 @@ import { evalAmount } from '../utils/math'
 import { toDatetimeLocal } from '../utils/date'
 import { AmountInput } from '../components/ui/AmountInput'
 import { Stagger, StaggerItem } from '../components/ui/Stagger'
+import { DescriptionTemplates } from '../components/ui/DescriptionTemplates'
 
 const labelCls = 'text-sm font-medium text-slate-700 dark:text-slate-300'
 const inputCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-400 dark:placeholder:text-slate-600 dark:focus:bg-slate-700'
@@ -109,6 +110,11 @@ export default function AddExpense() {
             value={description}
             onChange={e => setDescription(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSave()}
+          />
+          <DescriptionTemplates
+            categoryName={selectedStat?.name}
+            value={description}
+            onSelect={setDescription}
           />
         </StaggerItem>
 
