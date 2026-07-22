@@ -99,9 +99,9 @@ export function DescriptionTemplates({ categoryName, value = '', onSelect }) {
 
   return (
     <>
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 mt-1">
+      <div className="flex flex-wrap gap-2 mt-1">
         {mine.length === 0 && !canQuickSave && (
-          <p className="shrink-0 text-[11px] text-slate-400 dark:text-slate-500 py-1.5">
+          <p className="text-[11px] text-slate-400 dark:text-slate-500 py-1.5">
             Belum ada template. Ketik keterangan lalu tap <span className="font-semibold">+ Simpan</span>.
           </p>
         )}
@@ -112,7 +112,7 @@ export function DescriptionTemplates({ categoryName, value = '', onSelect }) {
             type="button"
             onPointerDown={e => e.preventDefault()}
             onClick={() => onSelect?.(t.text)}
-            className={`${chipBase} bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700`}
+            className={`${chipBase} max-w-full truncate bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700`}
           >
             {t.text}
           </button>
