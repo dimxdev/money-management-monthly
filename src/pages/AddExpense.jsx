@@ -113,7 +113,6 @@ export default function AddExpense() {
           />
           <DescriptionTemplates
             categoryName={selectedStat?.name}
-            value={description}
             onSelect={setDescription}
           />
         </StaggerItem>

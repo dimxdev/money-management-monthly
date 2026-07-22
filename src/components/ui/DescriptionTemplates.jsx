@@ -19,7 +19,7 @@ const inputCls = 'w-full border border-slate-200 dark:border-slate-600 rounded-x
 
 const sameText = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase()
 
-export function DescriptionTemplates({ categoryName, value = '', onSelect }) {
+export function DescriptionTemplates({ categoryName, onSelect }) {
   const [templates, setTemplates] = useStorage(STORAGE_KEY, [])
   const toast = useToast()
 
@@ -31,10 +31,6 @@ export function DescriptionTemplates({ categoryName, value = '', onSelect }) {
   const mine = categoryName
     ? list.filter(t => (t.category ?? '').toLowerCase() === categoryName.toLowerCase())
     : []
-
-  // Chip "+ Simpan" hanya saat ada teks baru yang belum jadi template
-  const typed = value.trim()
-  const canQuickSave = !!categoryName && !!typed && !mine.some(t => sameText(t.text, typed))
 
   function addTemplate(text) {
     const clean = toTitleCase(text)
@@ -100,9 +96,9 @@ export function DescriptionTemplates({ categoryName, value = '', onSelect }) {
   return (
     <>
       <div className="flex flex-wrap gap-2 mt-1">
-        {mine.length === 0 && !canQuickSave && (
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 py-1.5">
-            Belum ada template. Ketik keterangan lalu tap <span className="font-semibold">+ Simpan</span>.
+        {mine.length === 0 && (
+          <p className="flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-500 py-1.5">
+            Belum ada template. Tap <Settings2 size={12} className="inline shrink-0" /> untuk menambah.
           </p>
         )}
 
@@ -117,17 +113,6 @@ export function DescriptionTemplates({ categoryName, value = '', onSelect }) {
             {t.text}
           </button>
         ))}
-
-        {canQuickSave && (
-          <button
-            type="button"
-            onPointerDown={e => e.preventDefault()}
-            onClick={() => addTemplate(typed)}
-            className={`${chipBase} flex items-center gap-1 border border-dashed border-violet-300 dark:border-violet-700 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20`}
-          >
-            <Plus size={12} /> Simpan
-          </button>
-        )}
 
         <button
           type="button"
